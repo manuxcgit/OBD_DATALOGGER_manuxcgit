@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+<TextView  android:text="Menu Options" android:id="@+id/tVmenuOptions" android:layout_width="wrap_content" android:layout_height="wrap_content">
+ </TextView>
+
+<TableLayout
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent"
+    android:stretchColumns="1" >
+    
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:background="#FF909090"
+            android:layout_width="fill_parent"
+            android:text="Paramètres BLUETOOTH"
+            android:padding="3dip" />
+
+	</TableRow>
+	
+	<TableRow>
+
+		<TextView
+	        android:id="@+id/tVOBDChoisi"        
+            android:layout_column="1"
+            android:text="OBD :"
+            android:padding="3dip" />
+	    
+	</TableRow>
+    
+
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="LOG"
+            android:padding="3dip" />
+    </TableRow>
+    
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="Alfano"
+            android:padding="3dip" />
+    </TableRow>
+    <View android:layout_height="2dip" android:background="#FF909090"></View>
+
+    <MediaController
+        android:id="@+id/mediaController1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+    </MediaController>
+
+</TableLayout>
+</LinearLayout>

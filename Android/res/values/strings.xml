@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">OBD by manuXc</string>
+    <string name="app_name">OBD</string>
+    <string name="cmdTest">Test Connection</string>
+    <string name="cmdEnvoyer">Envoyer</string>
+    <string name="menuOptionsTitre">Menu Options</string>
+    <string name="spinnerOBD">Bluetooth disponibles</string>
+</resources>
