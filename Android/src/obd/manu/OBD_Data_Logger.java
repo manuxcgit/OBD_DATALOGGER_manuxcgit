@@ -3,6 +3,9 @@ package obd.manu;
 //http://nononux.free.fr/index.php?page=elec-brico-bluetooth-android-microcontroleur
 //http://www.vogella.de/articles/Android/article.html	
 //http://www.tutomobile.fr/intent-passer-dune-activity-a-une-autre-tutoriel-android-n%C2%B011/16/07/2010/import java.util.Timer;
+//http://kidrek.fr/blog/android/android-gestion-des-preferences-au-sein-dune-appli/
+
+import obd.manu.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -65,14 +68,15 @@ public class OBD_Data_Logger extends Activity
     @Override
     public void onCreate(Bundle savedInstanceState) 
     {
+    	try
+    	{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);    
         text = (EditText) findViewById(R.id.editTextCodeAEnvoer);
         liste = (EditText) findViewById(R.id.listReceived);
         Chrono = (Chronometer) findViewById(R.id.chronometer1);
         
-        try
-        {        BT = new Bluetooth(handlerStatus, handler);        }
+              BT = new Bluetooth(handlerStatus, handler);        }
         catch (Exception e)
         {     
         	Toast.makeText(this, "Erreur d'initialisation du BT !", Toast.LENGTH_LONG).show();
@@ -132,7 +136,7 @@ public class OBD_Data_Logger extends Activity
             return true;
             
         case R.id.menuOption:
-        	Intent intent = new Intent(this, menuOptions.class);
+        	Intent intent = new Intent(this, prefs.class);
 
         	// On lance l'Activity
         	startActivity(intent);

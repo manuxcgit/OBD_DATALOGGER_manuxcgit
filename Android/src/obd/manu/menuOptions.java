@@ -2,7 +2,9 @@ package obd.manu;
 
 import java.util.ArrayList;
 
+import obd.manu.R;
 import obd.manu.R.id;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
@@ -26,14 +28,14 @@ public class menuOptions extends Activity {
 		try
 		{
 	        super.onCreate(savedInstanceState);
-	        setContentView(R.layout.option); 
+	        setContentView(R.xml.preference); 
 	        //ajoute les periph bluetooth dispos dans les spinners
 	       // spinnerOBD = (Spinner) findViewById(id.spinnerChoixOBD);
 	        Bluetooth.listePeriphBluetooth.add("ee");
 	       // m_spinner(Bluetooth.listePeriphBluetooth);
 	        
 	        Toast.makeText(menuOptions.this,result, Toast.LENGTH_SHORT);
-	        textView =(TextView)findViewById(id.tVOBDChoisi);
+	//        textView =(TextView)findViewById(id.tVOBDChoisi);
 	       m_spinner(Bluetooth.listePeriphBluetooth);
 	        textView.setText( result.toCharArray(), 0, 4); 
 		}
