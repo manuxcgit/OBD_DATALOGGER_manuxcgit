@@ -22,7 +22,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
-public class Bluetooth {
+public class Class_Bluetooth {
 	
 	public boolean IsBusy = false;
 	public static ArrayList<CharSequence> listePeriphBluetooth = new ArrayList<CharSequence>();
@@ -36,7 +36,7 @@ public class Bluetooth {
 
 	Handler handler;
 
-	public Bluetooth(Handler hstatus, Handler h) {
+	public Class_Bluetooth(Handler hstatus, Handler h) {
 		Set<BluetoothDevice> setpairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
 		BluetoothDevice[] pairedDevices = (BluetoothDevice[]) setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
 		//listePeriphBluetooth = new String[pairedDevices.length];

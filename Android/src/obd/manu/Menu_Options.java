@@ -17,7 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class menuOptions extends Activity {
+public class Menu_Options extends Activity {
 	
 	private TextView textView;
 	static String result = "rien";
@@ -31,12 +31,12 @@ public class menuOptions extends Activity {
 	        setContentView(R.xml.preference); 
 	        //ajoute les periph bluetooth dispos dans les spinners
 	       // spinnerOBD = (Spinner) findViewById(id.spinnerChoixOBD);
-	        Bluetooth.listePeriphBluetooth.add("ee");
+	        Class_Bluetooth.listePeriphBluetooth.add("ee");
 	       // m_spinner(Bluetooth.listePeriphBluetooth);
 	        
-	        Toast.makeText(menuOptions.this,result, Toast.LENGTH_SHORT);
+	        Toast.makeText(Menu_Options.this,result, Toast.LENGTH_SHORT);
 	//        textView =(TextView)findViewById(id.tVOBDChoisi);
-	       m_spinner(Bluetooth.listePeriphBluetooth);
+	       m_spinner(Class_Bluetooth.listePeriphBluetooth);
 	        textView.setText( result.toCharArray(), 0, 4); 
 		}
 		catch (Exception e) {
@@ -71,14 +71,14 @@ public class menuOptions extends Activity {
 
             public void onClick(DialogInterface dialog, int id)
             {
-            	Toast.makeText(menuOptions.this,"ee", Toast.LENGTH_SHORT);
+            	Toast.makeText(Menu_Options.this,"ee", Toast.LENGTH_SHORT);
         }
         });
 
         alert.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
 
             public void onClick(DialogInterface dialog, int id) {
-              	Toast.makeText(menuOptions.this,"nul", Toast.LENGTH_SHORT);
+              	Toast.makeText(Menu_Options.this,"nul", Toast.LENGTH_SHORT);
               	result="2";
                 dialog.cancel();
             }
@@ -104,7 +104,7 @@ adb.setIcon(android.R.drawable.ic_dialog_alert);
 
 public void onClick(DialogInterface dialog, int item){
     // User clicked on a radio button do some stuff 
-	Toast.makeText(menuOptions.this, String.format("%d", item), Toast.LENGTH_SHORT).show();
+	Toast.makeText(Menu_Options.this, String.format("%d", item), Toast.LENGTH_SHORT).show();
 	result=String.format("%d", item);
     }
 });
@@ -116,14 +116,14 @@ adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
     	//EditText et = (EditText)alertDialogView.findViewById(R.id.EditText1);
 
     	//On affiche dans un Toast le texte contenu dans l'EditText de notre AlertDialog
-    	Toast.makeText(menuOptions.this, "ok", Toast.LENGTH_SHORT).show();
+    	Toast.makeText(Menu_Options.this, "ok", Toast.LENGTH_SHORT).show();
     	fini=true;
   } });
 
 //On crée un bouton "Annuler" à notre AlertDialog et on lui affecte un évènement
 adb.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
     public void onClick(DialogInterface dialog, int which) {
-    	Toast.makeText(menuOptions.this, "echap", Toast.LENGTH_SHORT).show();
+    	Toast.makeText(Menu_Options.this, "echap", Toast.LENGTH_SHORT).show();
     	result="";
     	fini=true;
     	
@@ -132,7 +132,7 @@ adb.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
 
 
 
-AlertDialog dial = new AlertDialog.Builder(menuOptions.this).create();
+AlertDialog dial = new AlertDialog.Builder(Menu_Options.this).create();
 DialogInterface.OnClickListener btListener = new DialogInterface.OnClickListener(){	
 
 public void onClick(DialogInterface dialog, int which) {
@@ -146,7 +146,7 @@ dial.setButton(AlertDialog.BUTTON_POSITIVE, "ok",btListener);
 dial.setButton(AlertDialog.BUTTON_NEGATIVE, "non",btListener);
 dial.show();
 
-Toast.makeText(menuOptions.this,"fin", Toast.LENGTH_SHORT);     
+Toast.makeText(Menu_Options.this,"fin", Toast.LENGTH_SHORT);     
 		return result;
 	}
 }

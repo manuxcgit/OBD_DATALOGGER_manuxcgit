@@ -9,15 +9,15 @@
 	<uses-permission android:name="android.permission.BLUETOOTH" />
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name=".OBD_Data_Logger"
+        <activity android:name=".Frame_OBD_Data_Logger"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".menuOptions"></activity>
-        <activity android:name="prefs"></activity>
+        <activity android:name=".Menu_Options"></activity>
+        <activity android:name=".Frame_Preferences"></activity>
 
     </application>
 </manifest>

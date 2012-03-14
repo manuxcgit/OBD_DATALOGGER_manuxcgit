@@ -3,13 +3,18 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
   
   xmlns:android="http://schemas.android.com/apk/res/android">
-	<EditTextPreference
+	<ListPreference
 		android:summary="Please provide user name"
 		android:title="User Name"
-		android:key="username"></EditTextPreference>
+		android:key="username">
+		</ListPreference>
 	<EditTextPreference
 		android:summary="Please enter your password"
 		android:title="Password" android:password="true"
 		android:key="password"></EditTextPreference>
+	<EditTextPreference
+		android:summary="Manu test"
+		android:title="Manu test" android:password="true"
+		android:key="test"></EditTextPreference>
     
 </PreferenceScreen>

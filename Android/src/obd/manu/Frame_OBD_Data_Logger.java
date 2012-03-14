@@ -5,16 +5,21 @@ package obd.manu;
 //http://www.tutomobile.fr/intent-passer-dune-activity-a-une-autre-tutoriel-android-n%C2%B011/16/07/2010/import java.util.Timer;
 //http://kidrek.fr/blog/android/android-gestion-des-preferences-au-sein-dune-appli/
 
+import java.util.ArrayList;
+
 import obd.manu.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.preference.ListPreference;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,7 +31,7 @@ import android.widget.Toast;
 
 
 
-public class OBD_Data_Logger extends Activity 
+public class Frame_OBD_Data_Logger extends Activity 
 {
     /** Called when the activity is first created. */
 	
@@ -34,7 +39,7 @@ public class OBD_Data_Logger extends Activity
 	private EditText liste;
 	private long lastTime = 0;
 	Chronometer Chrono ;
-	Bluetooth BT = null;
+	Class_Bluetooth BT = null;
 
 	
 	final Handler handler = new Handler() {
@@ -75,8 +80,11 @@ public class OBD_Data_Logger extends Activity
         text = (EditText) findViewById(R.id.editTextCodeAEnvoer);
         liste = (EditText) findViewById(R.id.listReceived);
         Chrono = (Chronometer) findViewById(R.id.chronometer1);
+       
         
-              BT = new Bluetooth(handlerStatus, handler);        }
+              BT = new Class_Bluetooth(handlerStatus, handler); 
+              
+    	}
         catch (Exception e)
         {     
         	Toast.makeText(this, "Erreur d'initialisation du BT !", Toast.LENGTH_LONG).show();
@@ -91,6 +99,10 @@ public class OBD_Data_Logger extends Activity
 				Chrono.setBase(SystemClock.elapsedRealtime());
 				Chrono.setText("00:00.00");
 				Chrono.start();
+				
+				SharedPreferences sp=PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		String  value=sp.getString("test","defaultvalue");
+				liste.append(value);
 				
 				String texteSaisi = text.getText().toString();
 				if (texteSaisi.length() == 0) 
@@ -136,7 +148,7 @@ public class OBD_Data_Logger extends Activity
             return true;
             
         case R.id.menuOption:
-        	Intent intent = new Intent(this, prefs.class);
+        	Intent intent = new Intent(this, Frame_Preferences.class);
 
         	// On lance l'Activity
         	startActivity(intent);
