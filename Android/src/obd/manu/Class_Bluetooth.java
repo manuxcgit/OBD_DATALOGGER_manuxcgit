@@ -3,7 +3,6 @@ package obd.manu;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.spi.CharsetProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,7 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.ArrayAdapter;
+
 
 public class Class_Bluetooth {
 	
@@ -37,16 +36,42 @@ public class Class_Bluetooth {
 	Handler handler;
 
 	public Class_Bluetooth(Handler hstatus, Handler h) {
+	
+		// #region ajoute les periph existant		
 		Set<BluetoothDevice> setpairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
 		BluetoothDevice[] pairedDevices = (BluetoothDevice[]) setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
-		//listePeriphBluetooth = new String[pairedDevices.length];
-		for (int i=0;i<pairedDevices.length;i++) 
+		if (listePeriphBluetooth.isEmpty())
 		{
-			listePeriphBluetooth.add ((CharSequence) pairedDevices[i].getName());
-		}
+			for (int i=0;i<pairedDevices.length;i++) 
+			{
+				listePeriphBluetooth.add ((CharSequence) pairedDevices[i].getName());
+			}
+		}	
+		// #endregion
 		
+		handler = hstatus;		
+		receiverThread = new ReceiverThread(h);	
+	}
+	
+	public void m_sendData(String data) {
+		m_sendData(data, false);
+	}
+	
+	public void m_sendData(String data, boolean deleteScheduledData) {
+		try {
+			sendStream.write(data.getBytes());
+	        sendStream.flush();
+	        IsBusy=true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void m_setBT (String nameBT)	{
+		Set<BluetoothDevice> setpairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+		BluetoothDevice[] pairedDevices = (BluetoothDevice[]) setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
 		for(int i=0;i<pairedDevices.length;i++) {
-			if(pairedDevices[i].getName().contains("obd2ecu")) {
+			if(pairedDevices[i].getName().contains(nameBT)) {
 				device = pairedDevices[i];
 				try {
 					socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
@@ -58,28 +83,9 @@ public class Class_Bluetooth {
 				break;
 			}
 		}
-		
-		handler = hstatus;
-		
-		receiverThread = new ReceiverThread(h);
-		
 	}
 	
-	public void sendData(String data) {
-		sendData(data, false);
-	}
-	
-	public void sendData(String data, boolean deleteScheduledData) {
-		try {
-			sendStream.write(data.getBytes());
-	        sendStream.flush();
-	        IsBusy=true;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void connect() {
+	public void m_connect() {
 		new Thread() {
 			@Override public void run() {
 				try {
@@ -153,44 +159,12 @@ public class Class_Bluetooth {
 		}
 	}
 
-   /* public String[] m_listeBluetooth()
-    {
-    	String[] listePeriph = new String[10];
-        // On récupère la liste des périphériques associés
-        Set<BluetoothDevice> setpairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
-        BluetoothDevice[] pairedDevices = (BluetoothDevice[]) setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
-         
-        // On parcours la liste pour trouver notre module bluetooth
-        for(int i=0;i<pairedDevices.length;i++)
-        {
-        	listePeriph[i]=String.format("%d ", i) + pairedDevices[i].getAddress() + " " + pairedDevices[i].getName();
-       /* 	Message msg = handler.obtainMessage();
-			Bundle b = new Bundle();
-			b.putString("receivedData", pairedDevices[i].getAddress());
-            msg.setData(b);
-            handler.sendMessage(msg);
-            
-            
-            // On teste si ce périphérique contient le nom du module bluetooth connecté au microcontrôleur
-            if(pairedDevices[i].getName().contains("obd2ecu"))
-            {
-            	//device = pairedDevices[i];
-               listePeriph[i]=pairedDevices[i].getName();
-               /* device = pairedDevices[i];
-                try {
-                    // On récupère le socket de notre périphérique
-                    socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-                     
-                    receiveStream = socket.getInputStream();// Canal de réception (valide uniquement après la connexion)
-                    sendStream = socket.getOutputStream();// Canal d'émission (valide uniquement après la connexion)
-                     
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                
-                break;
-            }
-        }
-        return listePeriph;
-    } */
+    public static CharSequence[] m_getListeBT(){
+    	CharSequence[] result = new CharSequence[listePeriphBluetooth.size()];
+    	for (int i=0; i<listePeriphBluetooth.size();i++)
+    	{	
+    		result[i]=listePeriphBluetooth.get(i);
+    	}
+    	return result;
+    }
 }
