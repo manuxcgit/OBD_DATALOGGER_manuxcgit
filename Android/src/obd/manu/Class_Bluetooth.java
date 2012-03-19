@@ -4,14 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.UUID;
 
-import android.R.string;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -35,20 +30,18 @@ public class Class_Bluetooth {
 
 	Handler handler;
 
-	public Class_Bluetooth(Handler hstatus, Handler h) {
-	
+	public Class_Bluetooth(Handler hstatus, Handler h) {	
 		// #region ajoute les periph existant		
-		Set<BluetoothDevice> setpairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
-		BluetoothDevice[] pairedDevices = (BluetoothDevice[]) setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
 		if (listePeriphBluetooth.isEmpty())
 		{
+			Set<BluetoothDevice> setpairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+			BluetoothDevice[] pairedDevices = (BluetoothDevice[]) setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
 			for (int i=0;i<pairedDevices.length;i++) 
 			{
 				listePeriphBluetooth.add ((CharSequence) pairedDevices[i].getName());
 			}
 		}	
 		// #endregion
-		
 		handler = hstatus;		
 		receiverThread = new ReceiverThread(h);	
 	}

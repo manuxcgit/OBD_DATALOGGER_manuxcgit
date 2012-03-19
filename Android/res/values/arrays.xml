@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+<string-array name="listFreqLOG">
+ <item>0.25 sec</item>
+ <item>0.50 sec</item>
+<item>1 sec</item>
+</string-array>
+
+<string-array name="listTickLOG">
+ <item>250</item>
+ <item>500</item>
+ <item>1000</item>
+</string-array>
+    
+</resources>

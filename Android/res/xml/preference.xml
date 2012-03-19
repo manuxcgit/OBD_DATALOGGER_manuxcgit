@@ -4,17 +4,38 @@
 <PreferenceCategory 
     android:title="Paramètres Bluetooth">
 	<ListPreference
-		android:summary="Please provide user name"
+		android:summary="Pas de BT séléctionné"
 		android:title="BT pour OBD"
-		android:key="btpourobd">
+		android:key="pref_btpourobd">
 		</ListPreference>
-	<EditTextPreference
-		android:summary="Please enter your password"
-		android:title="Password" android:password="true"
-		android:key="password"></EditTextPreference>
+	<ListPreference
+		android:summary="Pas de BT séléctionné"
+		android:title="BT pour GPS"
+		android:key="pref_btpourgps"></ListPreference>
 	<EditTextPreference
 		android:summary="Manu test"
 		android:title="Manu test" android:password="true"
 		android:key="test"></EditTextPreference>
+</PreferenceCategory>
+<PreferenceCategory 
+    android:title="Fichier LOG">
+    <ListPreference
+		android:summary="Pas d'intervale séléctionné"
+		android:title="Période des LOG"
+		android:key="pref_periodeLOG"
+		android:entries="@array/listFreqLOG"
+		android:entryValues="@array/listTickLOG">
+		</ListPreference>
+	<CheckBoxPreference 
+	    android:summaryOn="Actif"
+	    android:summaryOff="Inactif"
+	    android:title="Enregistrement Video"
+	    android:key="pref_CBVideoActif"
+	    />
+	<ListPreference
+		android:summary="Pas de format séléctionné"
+		android:title="Format Vidéo"
+		android:key="pref_videosize">
+	</ListPreference>
 </PreferenceCategory>    
 </PreferenceScreen>

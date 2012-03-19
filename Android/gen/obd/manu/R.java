@@ -9,8 +9,8 @@ package obd.manu;
 
 public final class R {
     public static final class array {
-        public static final int listArray=0x7f060000;
-        public static final int listValues=0x7f060001;
+        public static final int listFreqLOG=0x7f050000;
+        public static final int listTickLOG=0x7f050001;
     }
     public static final class attr {
     }
@@ -37,12 +37,10 @@ public final class R {
         public static final int prefs=0x7f030003;
     }
     public static final class string {
-        public static final int app_name=0x7f050001;
-        public static final int cmdEnvoyer=0x7f050003;
-        public static final int cmdTest=0x7f050002;
-        public static final int hello=0x7f050000;
-        public static final int menuOptionsTitre=0x7f050004;
-        public static final int spinnerOBD=0x7f050005;
+        public static final int app_name=0x7f060001;
+        public static final int cmdEnvoyer=0x7f060003;
+        public static final int cmdTest=0x7f060002;
+        public static final int hello=0x7f060000;
     }
     public static final class xml {
         public static final int preference=0x7f040000;

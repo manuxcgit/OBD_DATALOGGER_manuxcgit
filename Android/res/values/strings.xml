@@ -4,21 +4,4 @@
     <string name="app_name">OBD</string>
     <string name="cmdTest">Test Connection</string>
     <string name="cmdEnvoyer">Envoyer</string>
-    <string name="menuOptionsTitre">Menu Options</string>
-    <string name="spinnerOBD">Bluetooth disponibles</string>
-
-
-<string-array name="listArray">
- <item>Value 1</item>
- <item>Value 2</item>
-<item>Value 3</item>
-</string-array>
-
-<string-array name="listValues">
- <item>1</item>
- <item>2</item>
- <item>3</item>
-</string-array>
-
-
 </resources>

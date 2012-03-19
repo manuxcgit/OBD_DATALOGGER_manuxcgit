@@ -6,14 +6,25 @@ package obd.manu;
 //http://kidrek.fr/blog/android/android-gestion-des-preferences-au-sein-dune-appli/
 
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
 import obd.manu.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.hardware.Camera;
+import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -81,14 +92,14 @@ public class Frame_OBD_Data_Logger extends Activity
         text = (EditText) findViewById(R.id.editTextCodeAEnvoer);
         liste = (EditText) findViewById(R.id.listReceived);
         Chrono = (Chronometer) findViewById(R.id.chronometer1);
-       
-        
-              BT = new Class_Bluetooth(handlerStatus, handler); 
+             
+   
+         BT = new Class_Bluetooth(handlerStatus, handler); 
               
     	}
         catch (Exception e)
         {     
-        	Toast.makeText(this, "Erreur d'initialisation du BT !", Toast.LENGTH_LONG).show();
+        	Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
         }
     }
     
