@@ -31,6 +31,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.preference.ListPreference;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -92,8 +93,12 @@ public class Frame_OBD_Data_Logger extends Activity
         text = (EditText) findViewById(R.id.editTextCodeAEnvoer);
         liste = (EditText) findViewById(R.id.listReceived);
         Chrono = (Chronometer) findViewById(R.id.chronometer1);
-             
    
+        Context ctx = getApplicationContext();
+        
+        Notifier.startStatusbarNotifications(ctx);
+        
+        
          BT = new Class_Bluetooth(handlerStatus, handler); 
               
     	}
@@ -157,6 +162,7 @@ public class Frame_OBD_Data_Logger extends Activity
       switch (item.getItemId()) 
       {
         case R.id.menuQuitter :
+        	// #region MenuQuitter
         	AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
             alertbox.setMessage("Voulez vous quitter ?");
             alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
@@ -175,11 +181,19 @@ public class Frame_OBD_Data_Logger extends Activity
             });
             alertbox.show();
             return true;
-            
+            // #endregion    
         case R.id.menuOption:
+        	// #region MenuOpion
         	Intent intent = new Intent(this, Frame_Preferences.class);
         	startActivity(intent);
-    		}
+        	// #endregion
+        case R.id.menuPreviewVideo:
+        	// #region Preview Video
+        	Intent intent1 = new Intent(this, Frame_PreviewCamera.class);
+        	startActivity(intent1);
+        	// #endregion
+     
+      }
     		 
       return false;
    }

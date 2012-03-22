@@ -19,6 +19,7 @@
         </activity>
         <activity android:name=".Menu_Options"></activity>
         <activity android:name=".Frame_Preferences"></activity>
+        <activity android:name="Frame_PreviewCamera"></activity>
 
     </application>
 </manifest>

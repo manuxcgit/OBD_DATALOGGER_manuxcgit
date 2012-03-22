@@ -8,5 +8,8 @@
  
 <item android:id="@+id/menuQuitter" 
      android:title="Quitter" />
+
+<item android:id="@+id/menuPreviewVideo"
+    android:title="Aperçu Video" />
 </menu>
     
