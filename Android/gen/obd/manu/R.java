@@ -24,14 +24,14 @@ public final class R {
         public static final int chronometer1=0x7f070000;
         public static final int cmdEnvoyer=0x7f070004;
         public static final int cmdTest=0x7f070001;
+        public static final int cmd_startcamerapreview=0x7f070009;
+        public static final int cmd_stopcamerapreview=0x7f07000a;
         public static final int editTextCodeAEnvoer=0x7f070003;
         public static final int listReceived=0x7f070002;
         public static final int menuOption=0x7f070005;
         public static final int menuPreviewVideo=0x7f070007;
         public static final int menuQuitter=0x7f070006;
-        public static final int startcamerapreview=0x7f070008;
-        public static final int stopcamerapreview=0x7f070009;
-        public static final int surfaceview=0x7f07000a;
+        public static final int surfaceview=0x7f070008;
     }
     public static final class layout {
         public static final int main=0x7f030000;

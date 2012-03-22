@@ -27,8 +27,8 @@ public class Frame_PreviewCamera extends Activity implements SurfaceHolder.Callb
        super.onCreate(savedInstanceState);
        setContentView(R.layout.preview_video);
       
-       Button buttonStartCameraPreview = (Button)findViewById(R.id.startcamerapreview);
-       Button buttonStopCameraPreview = (Button)findViewById(R.id.stopcamerapreview);
+       Button buttonStartCameraPreview = (Button)findViewById(R.id.cmd_startcamerapreview);
+       Button buttonStopCameraPreview = (Button)findViewById(R.id.cmd_stopcamerapreview);
       
        getWindow().setFormat(PixelFormat.UNKNOWN);
        surfaceView = (SurfaceView)findViewById(R.id.surfaceview);

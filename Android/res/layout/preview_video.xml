@@ -4,21 +4,35 @@
    android:layout_width="fill_parent"
    android:layout_height="fill_parent"
    >
+   
+
+    
+ <LinearLayout
+     android:orientation="horizontal"
+     android:layout_height="wrap_content"
+     android:layout_width="fill_parent">
 <Button
- android:id="@+id/startcamerapreview" 
-   android:layout_width="fill_parent"
+ android:id="@+id/cmd_startcamerapreview" 
+   android:layout_width="wrap_content"
    android:layout_height="wrap_content"
-   android:text="- Start Camera Preview -"
+   android:text="Demarrer Visualisation"
    />
+
 <Button
- android:id="@+id/stopcamerapreview" 
-   android:layout_width="fill_parent"
-   android:layout_height="wrap_content"
-   android:text="- Stop Camera Preview -"
-   />
+    android:id="@+id/cmd_stopcamerapreview"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Arreter Visualistaion" />
+</LinearLayout>
+
+  <LinearLayout
+     android:orientation="vertical"
+     android:layout_height="wrap_content"
+     android:layout_width="fill_parent">
 <SurfaceView
  android:id="@+id/surfaceview" 
    android:layout_width="fill_parent"
    android:layout_height="wrap_content"
    />
+</LinearLayout>
 </LinearLayout>
