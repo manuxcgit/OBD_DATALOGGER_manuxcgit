@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.graphics.PixelFormat;
-import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;

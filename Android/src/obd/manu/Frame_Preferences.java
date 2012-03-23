@@ -1,18 +1,14 @@
 package obd.manu;
 
 import java.util.Map;
-import java.util.Set;
-
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.os.DropBoxManager.Entry;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 
 

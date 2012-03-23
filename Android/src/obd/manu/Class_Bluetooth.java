@@ -35,10 +35,10 @@ public class Class_Bluetooth {
 		if (listePeriphBluetooth.isEmpty())
 		{
 			Set<BluetoothDevice> setpairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
-			BluetoothDevice[] pairedDevices = (BluetoothDevice[]) setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
+			BluetoothDevice[] pairedDevices = setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
 			for (int i=0;i<pairedDevices.length;i++) 
 			{
-				listePeriphBluetooth.add ((CharSequence) pairedDevices[i].getName());
+				listePeriphBluetooth.add (pairedDevices[i].getName());
 			}
 		}	
 		// #endregion
@@ -62,7 +62,7 @@ public class Class_Bluetooth {
 
 	public void m_setBT (String nameBT)	{
 		Set<BluetoothDevice> setpairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
-		BluetoothDevice[] pairedDevices = (BluetoothDevice[]) setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
+		BluetoothDevice[] pairedDevices = setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
 		for(int i=0;i<pairedDevices.length;i++) {
 			if(pairedDevices[i].getName().contains(nameBT)) {
 				device = pairedDevices[i];

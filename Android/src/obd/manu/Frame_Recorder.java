@@ -97,10 +97,10 @@ mediaRecorder.reset();
        CamcorderProfile camcorderProfile_HQ = CamcorderProfile.get(CamcorderProfile.QUALITY_LOW);
      //  Toast.makeText(getApplicationContext(), "getprofile", Toast.LENGTH_SHORT).show();
        mediaRecorder.setProfile(camcorderProfile_HQ);
-		mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		//mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
     //   Toast.makeText(getApplicationContext(), "setprofile", Toast.LENGTH_SHORT).show();
-       mediaRecorder.setOutputFile("/sdcard/dcim/Camera/video_manu_test.mp4");
+       mediaRecorder.setOutputFile(android.os.Environment.getRootDirectory().getAbsolutePath()+ "/video_manu_test.mp4");
      //  Toast.makeText(getApplicationContext(), "setoutput", Toast.LENGTH_SHORT).show();
        mediaRecorder.setMaxDuration(60000); // Set max duration 60 sec.
      //  Toast.makeText(getApplicationContext(), "setduration", Toast.LENGTH_SHORT).show();
@@ -134,9 +134,10 @@ private void writeToSDFile(){
         pw.flush();
         pw.close();
         f.close();
+        Toast.makeText (getApplicationContext(),  "Write reussi", Toast.LENGTH_SHORT).show();
     } catch (FileNotFoundException e) {
         e.printStackTrace();
-        Toast.makeText (getApplicationContext(),  "******* File not found. Did you" +
+        Toast.makeText (getApplicationContext(),  file + 
                         " add a WRITE_EXTERNAL_STORAGE permission to the manifest?", Toast.LENGTH_SHORT).show();
     } catch (IOException e) {
         e.printStackTrace();

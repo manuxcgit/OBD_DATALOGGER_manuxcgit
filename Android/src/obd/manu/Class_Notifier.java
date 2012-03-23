@@ -1,7 +1,5 @@
 package obd.manu;
 
-import java.util.logging.Logger;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
