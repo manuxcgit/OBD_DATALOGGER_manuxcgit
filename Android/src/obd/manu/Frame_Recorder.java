@@ -1,5 +1,6 @@
 package obd.manu;
 
+//http://blog.developpez.com/android23/p8541/android/creer-un-sd-card-ajouter-des-fichiers-et/
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
