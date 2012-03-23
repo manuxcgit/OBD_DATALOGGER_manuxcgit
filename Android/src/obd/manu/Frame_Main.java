@@ -43,7 +43,7 @@ import android.widget.Toast;
 
 
 
-public class Frame_OBD_Data_Logger extends Activity 
+public class Frame_Main extends Activity 
 {
     /** Called when the activity is first created. */
 
@@ -52,7 +52,8 @@ public class Frame_OBD_Data_Logger extends Activity
 	private long lastTime = 0;
 	Chronometer Chrono ;
 	Class_Bluetooth BT = null;
-
+	Class_UserPreferences mPref ;
+	
 	
 	final Handler handler = new Handler() {
         public void handleMessage(Message msg) {
@@ -96,7 +97,9 @@ public class Frame_OBD_Data_Logger extends Activity
    
         Context ctx = getApplicationContext();
         
-        Notifier.startStatusbarNotifications(ctx);
+        mPref = new Class_UserPreferences(ctx);
+        
+        Class_Notifier.startStatusbarNotifications(ctx);
         
         
          BT = new Class_Bluetooth(handlerStatus, handler); 
@@ -118,11 +121,7 @@ public class Frame_OBD_Data_Logger extends Activity
 				Chrono.setBase(SystemClock.elapsedRealtime());
 				Chrono.setText("00:00.00");
 				Chrono.start();
-				
-			/*	SharedPreferences sp=PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-				String  value=sp.getString("btpourobd","defaultvalue");
-
-				liste.append("Test "+value+"\r\n");  */
+			
 				
 				
 				String texteSaisi = text.getText().toString();
@@ -139,12 +138,10 @@ public class Frame_OBD_Data_Logger extends Activity
 				// #endregion
 			case R.id.cmdTest:
 				// #region cmdTest
-				SharedPreferences sp=PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-				String  value=sp.getString("btpourobd","defaultvalue");
-
-				liste.append("Test "+value+"\r\n");
-				BT.m_setBT(value);
-			    BT.m_connect();
+				String value = mPref.m_getParam(text.getText().toString());//  m_getParam(text.getText().toString(), getApplicationContext());
+				liste.append(text.getText().toString()+" .. "+value+"\r\n");
+				//BT.m_setBT(value);
+			    //BT.m_connect();
 				break;
 				// #endregion
 		}
@@ -186,11 +183,13 @@ public class Frame_OBD_Data_Logger extends Activity
         	// #region MenuOpion
         	Intent intent = new Intent(this, Frame_Preferences.class);
         	startActivity(intent);
+        	return true;
         	// #endregion
         case R.id.menuPreviewVideo:
         	// #region Preview Video
-        	Intent intent1 = new Intent(this, Frame_PreviewCamera.class);
+        	Intent intent1 = new Intent(this, Frame_Recorder.class);
         	startActivity(intent1);
+        	return true;
         	// #endregion
      
       }
@@ -210,5 +209,9 @@ public class Frame_OBD_Data_Logger extends Activity
             return false;
     }
 
+    public static  String m_getParam(String Param, Context hereContext){
+		SharedPreferences sp=  PreferenceManager.getDefaultSharedPreferences(hereContext);
+		return sp.getString(Param, "defaultvalue");
+    }
 }
 

@@ -11,6 +11,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 
@@ -37,7 +38,7 @@ public class Frame_Preferences extends PreferenceActivity implements OnSharedPre
     		pref.setSummary(couple.getValue().toString());    		
     	}
     	catch (Exception e) {
-			// TODO: handle exception
+    		Log.e("Affiche valeurs des pref", Key + "??");
 		}    
  	}
     // #endregion
@@ -58,7 +59,7 @@ public class Frame_Preferences extends PreferenceActivity implements OnSharedPre
 	    LP_obd.setEntryValues(test);
     }
     catch (Exception e) {
-		Toast.makeText(this,e.toString(), Toast.LENGTH_SHORT).show();
+    	Log.e("Remplit LP_BT dispos", "??");
 	}
     // #endregion
     // #region remplit List Video Size
@@ -67,7 +68,7 @@ public class Frame_Preferences extends PreferenceActivity implements OnSharedPre
 		LP_Video.setEntries(Class_Camera.m_getListe());
 		LP_Video.setEntryValues(Class_Camera.m_getListe());
 	} catch (Exception e) {
-		// TODO: handle exception
+		//
 	}
     // #endregion
     

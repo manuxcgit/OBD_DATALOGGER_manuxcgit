@@ -15,14 +15,21 @@
  android:id="@+id/cmd_startcamerapreview" 
    android:layout_width="wrap_content"
    android:layout_height="wrap_content"
-   android:text="Demarrer Visualisation"
+   android:text="Demarrer Visu"
    />
 
 <Button
     android:id="@+id/cmd_stopcamerapreview"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Arreter Visualistaion" />
+    android:text="Arreter Visu" />
+
+<Button
+    android:id="@+id/cmd_testvideo"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="test video" />
+
 </LinearLayout>
 
   <LinearLayout

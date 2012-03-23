@@ -1,5 +1,7 @@
 package obd.manu;
 
+import java.util.logging.Logger;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -7,7 +9,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
+/*import ch.amana.android.cputuner.R;
+import ch.amana.android.cputuner.helper.PulseHelper;
+import ch.amana.android.cputuner.helper.SettingsStorage;
+import ch.amana.android.cputuner.hw.PowerProfiles;
+import ch.amana.android.cputuner.view.activity.CpuTunerViewpagerActivity; */
+import android.util.Log;
 
 public class Class_Notifier extends BroadcastReceiver {
 
@@ -58,7 +65,7 @@ public class Class_Notifier extends BroadcastReceiver {
 		//		}
 	}
 
-	public  Class_Notifier(final Context ctx) {
+	public Class_Notifier(final Context ctx) {
 		super();
 		this.context = ctx.getApplicationContext();
 		String ns = Context.NOTIFICATION_SERVICE;
@@ -89,8 +96,10 @@ public class Class_Notifier extends BroadcastReceiver {
 			}
 			if (contentText == null || contentText.equals(lastContentText)) {
 				return;
-			}*/
-		String contentText = "Manu";
+			}
+			*/
+		//StringBuffer sb = new StringBuffer(25);
+		String contentText = "Manu en test";
 			lastContentText = contentText;
 			contentTitle = context.getString(R.string.app_name);
 			Notification notification = getNotification(contentText);
@@ -99,26 +108,26 @@ public class Class_Notifier extends BroadcastReceiver {
 			try {
 				notificationManager.notify(NOTIFICATION_ID, notification);
 			} catch (Exception e) {
-				//Logger.e("Cannot notify " + notification);
+				Log.e("Notif","Cannot notify " + notification);
 			}
-		
-	}
+		}
 
 	private Notification getNotification(CharSequence contentText) {
-		boolean isDisplayNotification = true; //SettingsStorage.getInstance().isStatusbarNotifications();
+		boolean isDisplayNotification = true;//SettingsStorage.getInstance().isStatusbarNotifications();
 		int iconNew = R.drawable.icon;
 	/*	if (!SettingsStorage.getInstance().isEnableProfiles()) {
 			iconNew = R.drawable.icon_red;
 		} else if (PowerProfiles.getInstance().isManualProfile()) {
 			iconNew = R.drawable.icon_yellow;
-		} */
+		}*/
 		if (isDisplayNotification || notification == null || icon != iconNew) {
 			if (!isDisplayNotification) {
 				contentText = "";
 			}
 			icon = iconNew;
 			notification = new Notification(icon, contentText, System.currentTimeMillis());
-			//contentIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, Frame_OBD_Data_Logger.getInstanceCount(), NOTIFICATION_ID);
+			Intent t = new Intent(context, Frame_Preferences.class);
+			contentIntent = PendingIntent.getActivity (context, 0, t,0);// CpuTunerViewpagerActivity.getStartIntent(context), 0);
 
 			notification.flags |= Notification.FLAG_NO_CLEAR;
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;

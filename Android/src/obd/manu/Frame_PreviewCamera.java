@@ -6,74 +6,194 @@ import java.io.IOException;
 import android.app.Activity;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
+import android.media.CamcorderProfile;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class Frame_PreviewCamera extends Activity implements SurfaceHolder.Callback{
 
- Camera camera;
+ Class_Camera cameraPreview ;//= new Class_Camera(getApplicationContext());
  SurfaceView surfaceView;
  SurfaceHolder surfaceHolder;
- boolean previewing = false;;
- 
+ MediaRecorder mediaRecorder;
+ boolean previewing = false;
+ boolean recording;
+
+   /** Called when the activity is first created. */
+ /*  @Override
+   public void onCreate(Bundle savedInstanceState) {
+       super.onCreate(savedInstanceState);
+      
+       recording = false;
+      
+       mediaRecorder = new MediaRecorder();
+       initMediaRecorder();
+      
+       setContentView(R.layout.main);
+      
+       SurfaceView myVideoView = (SurfaceView)findViewById(R.id.videoview);
+       surfaceHolder = myVideoView.getHolder();
+       surfaceHolder.addCallback(this);
+       surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+      
+       myButton = (Button)findViewById(R.id.mybutton);
+       myButton.setOnClickListener(myButtonOnClickListener);
+   }
+  
+   private Button.OnClickListener myButtonOnClickListener
+   = new Button.OnClickListener(){
+
+ @Override
+ public void onClick(View arg0) {
+  // TODO Auto-generated method stub
+  if(recording){
+   mediaRecorder.stop();
+   mediaRecorder.release();
+   finish();
+  }else{
+   mediaRecorder.start();
+   recording = true;
+   myButton.setText("STOP");
+  }
+ }};
+  
+@Override
+public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
+ // TODO Auto-generated method stub
+
+}
+@Override
+public void surfaceCreated(SurfaceHolder arg0) {
+ // TODO Auto-generated method stub
+ prepareMediaRecorder();
+}
+@Override
+public void surfaceDestroyed(SurfaceHolder arg0) {
+ // TODO Auto-generated method stub
+
+}
+
+private void initMediaRecorder(){
+ mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+       mediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
+       CamcorderProfile camcorderProfile_HQ = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+       mediaRecorder.setProfile(camcorderProfile_HQ);
+       mediaRecorder.setOutputFile("/sdcard/myvideo.mp4");
+       mediaRecorder.setMaxDuration(60000); // Set max duration 60 sec.
+       mediaRecorder.setMaxFileSize(5000000); // Set max file size 5M
+}
+
+private void prepareMediaRecorder(){
+ mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
+ try {
+  mediaRecorder.prepare();
+ } catch (IllegalStateException e) {
+  // TODO Auto-generated catch block
+  e.printStackTrace();
+ } catch (IOException e) {
+  // TODO Auto-generated catch block
+  e.printStackTrace();
+ }
+}
+ */
  String stringPath = "/sdcard/samplevideo.3gp";
  
    /** Called when the activity is first created. */
    @Override
    public void onCreate(Bundle savedInstanceState) {
        super.onCreate(savedInstanceState);
+       recording = false;       
+       mediaRecorder = new MediaRecorder();
+       initMediaRecorder();
        setContentView(R.layout.preview_video);
       
        Button buttonStartCameraPreview = (Button)findViewById(R.id.cmd_startcamerapreview);
        Button buttonStopCameraPreview = (Button)findViewById(R.id.cmd_stopcamerapreview);
+       final Button cmdTestVideo = (Button)findViewById(R.id.cmd_testvideo);
+       cmdTestVideo.setText("Test video");
       
        getWindow().setFormat(PixelFormat.UNKNOWN);
        surfaceView = (SurfaceView)findViewById(R.id.surfaceview);
        surfaceHolder = surfaceView.getHolder();
        surfaceHolder.addCallback(this);
        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+       
+       cameraPreview = new Class_Camera(getApplicationContext());
       
        buttonStartCameraPreview.setOnClickListener(new Button.OnClickListener(){
-
-   
-   public void onClick(View v) {
-    // TODO Auto-generated method stub
-    if(!previewing){
-     camera = Camera.open();
-     if (camera != null){
-      try {
-       camera.setPreviewDisplay(surfaceHolder);
-       camera.startPreview();
-       previewing = true;
-      } catch (IOException e) {
-       // TODO Auto-generated catch block
-       e.printStackTrace();
-      }
-     }
-    }
-   }});
+				public void onClick(View arg0) {
+					try{
+					cameraPreview.m_preview(surfaceHolder, true);
+					}
+					catch (Exception e) {
+						Log.e("Preview", e.getMessage());
+					}
+				}    	   
+		       });
       
        buttonStopCameraPreview.setOnClickListener(new Button.OnClickListener(){
-
+			   public void onClick(View v) {
+				   cameraPreview.m_preview(null, false);
+			   }});
+       
+       cmdTestVideo.setOnClickListener(new Button.OnClickListener(){
+		   public void onClick(View v) {
+			   Log.v("cmdTestVideo","pressed");
+			   Boolean filmer = cmdTestVideo.getText().toString()=="Test video";
+			   Log.v("filmer boolean",filmer.toString());
+			   cameraPreview.m_filme("Test", filmer);
+			   if (filmer){
+				   cmdTestVideo.setText("Stop video");}
+			   else
+			   { cmdTestVideo.setText("Test video");
+			   }
+			   //test video
+			   
+			   if(recording){
+				   mediaRecorder.stop();
+				   mediaRecorder.release();
+				   finish();
+				  }else{
+				   mediaRecorder.start();
+				   recording = true;
+				  }
+		   }});
    
-   public void onClick(View v) {
-    // TODO Auto-generated method stub
-    if(camera != null && previewing){
-     camera.stopPreview();
-     camera.release();
-     camera = null;
-     
-     previewing = false;
-    }
-   }});
-      
    }
   
-  
+   private void initMediaRecorder(){
+	   try{
+	   mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+	         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
+	         CamcorderProfile camcorderProfile_HQ = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+	         mediaRecorder.setProfile(camcorderProfile_HQ);
+	         mediaRecorder.setOutputFile("/sdcard/myvideo.mp4");
+	         mediaRecorder.setMaxDuration(60000); // Set max duration 60 sec.
+	         mediaRecorder.setMaxFileSize(5000000); // Set max file size 5M
+	   }
+	   catch (Exception e) {
+		Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT);
+	}
+	  }
 
+   private void prepareMediaRecorder(){
+	   mediaRecorder.setPreviewDisplay(surfaceHolder.getSurface());
+	   try {
+	    mediaRecorder.prepare();
+	   } catch (IllegalStateException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	   } catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	   }
+	  }
  
  public void surfaceChanged(SurfaceHolder holder, int format, int width,
    int height) {
