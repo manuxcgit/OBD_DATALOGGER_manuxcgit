@@ -99,7 +99,7 @@ public class Frame_Main extends Activity
         
         mPref = new Class_UserPreferences(ctx);
         
-        Class_Notifier.startStatusbarNotifications(ctx);
+        // Class_Notifier.startStatusbarNotifications(ctx);
         
         
          BT = new Class_Bluetooth(handlerStatus, handler); 
@@ -118,11 +118,11 @@ public class Frame_Main extends Activity
 			case R.id.cmdEnvoyer:
 				// #region cmdEnvoyer
 				
-				Chrono.setBase(SystemClock.elapsedRealtime());
+			/*	Chrono.setBase(SystemClock.elapsedRealtime());
 				Chrono.setText("00:00.00");
 				Chrono.start();
 			
-				
+				/*/
 				
 				String texteSaisi = text.getText().toString();
 				if (texteSaisi.length() == 0) 
@@ -138,10 +138,10 @@ public class Frame_Main extends Activity
 				// #endregion
 			case R.id.cmdTest:
 				// #region cmdTest
-				String value = mPref.m_getParam(text.getText().toString());//  m_getParam(text.getText().toString(), getApplicationContext());
-				liste.append(text.getText().toString()+" .. "+value+"\r\n");
-				//BT.m_setBT(value);
-			    //BT.m_connect();
+				String value = mPref.m_getParam("pref_btpourobd");//text.getText().toString());//  m_getParam(text.getText().toString(), getApplicationContext());
+				//liste.append(text.getText().toString()+" .. "+value+"\r\n");
+				BT.m_setBT(value);
+			    BT.m_connect();
 				break;
 				// #endregion
 		}

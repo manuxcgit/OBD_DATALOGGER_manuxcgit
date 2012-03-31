@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -57,9 +58,10 @@ boolean recording;
    finish();
   }else{
 	  try{
-		  writeToSDFile();
-   mediaRecorder.start();
-   recording = true;
+		 //writeToSDFile();
+	startRecording();	  
+  // mediaRecorder.start();
+  // recording = true;
    myButton.setText("STOP");
   }
 	  catch (Exception e) {
@@ -86,6 +88,10 @@ public void surfaceDestroyed(SurfaceHolder arg0) {
 
 private void initMediaRecorder(){
 	try{
+		File root = android.os.Environment.getExternalStorageDirectory();
+		File dir = new File (root.getAbsolutePath() + "/download");
+	    dir.mkdirs();
+	    File file = new File(dir, "video.mp4");
 		//recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 mediaRecorder.reset();
 		//recorder.setOutputFile("/data/test.mp3");
@@ -94,13 +100,13 @@ mediaRecorder.reset();
  //Toast.makeText(getApplicationContext(), "setaudiosource", Toast.LENGTH_SHORT).show();
        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
      //  Toast.makeText(getApplicationContext(), "setvideosource", Toast.LENGTH_SHORT).show();
-       CamcorderProfile camcorderProfile_HQ = CamcorderProfile.get(CamcorderProfile.QUALITY_LOW);
+       CamcorderProfile camcorderProfile_HQ = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
      //  Toast.makeText(getApplicationContext(), "getprofile", Toast.LENGTH_SHORT).show();
        mediaRecorder.setProfile(camcorderProfile_HQ);
-		mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-		mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+	//	mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+	//	mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
     //   Toast.makeText(getApplicationContext(), "setprofile", Toast.LENGTH_SHORT).show();
-       mediaRecorder.setOutputFile("/sdcard/dcim/Camera/video_manu_test.mp4");
+       mediaRecorder.setOutputFile(file.getAbsolutePath());
      //  Toast.makeText(getApplicationContext(), "setoutput", Toast.LENGTH_SHORT).show();
        mediaRecorder.setMaxDuration(60000); // Set max duration 60 sec.
      //  Toast.makeText(getApplicationContext(), "setduration", Toast.LENGTH_SHORT).show();
@@ -112,9 +118,35 @@ mediaRecorder.reset();
 	}
 }
 
+private MediaRecorder mediaRecorder1;
+private File file = null;
+static final String PREFIX = "record";
+static final String EXTENSION = ".3gpp";
+private void startRecording() throws Exception {
+	try{
+        mediaRecorder1 = new MediaRecorder();
+        mediaRecorder1.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+        mediaRecorder1.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder1.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+     //   mediaRecorder1.setVideoSource( (MediaRecorder.VideoSource.DEFAULT);
+        if (file == null) {
+            File rootDir = Environment.getExternalStorageDirectory();
+            file = File.createTempFile(PREFIX, EXTENSION, rootDir);
+        }
+        mediaRecorder1.setOutputFile(file.getAbsolutePath());
+        mediaRecorder1.prepare();
+        Log.i("Camera","prepared");
+     	 mediaRecorder1.setPreviewDisplay(surfaceHolder.getSurface());
+         Log.i("Camera","surfaceholder");
+        mediaRecorder1.start();
+        Log.i("Camera","RECORD STARTED");
+    }
+	catch(Exception e){e.printStackTrace();}
+}
+
 private void writeToSDFile(){
     
-    // Find the root of the external storage.
+    // Find the root of the external storage
     // See http://developer.android.com/guide/topics/data/data-storage.html#filesExternal
             
     File root = android.os.Environment.getExternalStorageDirectory(); 
@@ -151,9 +183,11 @@ private void prepareMediaRecorder(){
  } catch (IllegalStateException e) {
   // TODO Auto-generated catch block
   e.printStackTrace();
+  Log.e("illegalstate","error");
  } catch (IOException e) {
   // TODO Auto-generated catch block
   e.printStackTrace();
+  Log.e("IO exception","error");
  }
 }
 }
