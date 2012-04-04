@@ -11,8 +11,8 @@
    >
 <SurfaceView
 android:id="@+id/videoview"
-android:layout_width="320px"
-android:layout_height="240px"/>
+android:layout_width="640px"
+android:layout_height="480px"/>
 <Button
 android:id="@+id/mybutton"
 android:layout_width="fill_parent"

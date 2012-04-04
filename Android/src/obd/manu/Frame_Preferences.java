@@ -1,17 +1,16 @@
 package obd.manu;
 
 import java.util.Map;
-import java.util.Set;
-
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.graphics.Point;
 import android.os.Bundle;
-import android.os.DropBoxManager.Entry;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.SurfaceView;
 import android.widget.Toast;
 
 
@@ -20,12 +19,16 @@ public class Frame_Preferences extends PreferenceActivity implements OnSharedPre
 {
 	
 	
+	
   @Override
   public void onCreate(Bundle savedInstanceState){
 	  
 
     super.onCreate(savedInstanceState);
     addPreferencesFromResource(R.xml.preference);
+    SurfaceView sf = (SurfaceView) findViewById(R.id.surfaceview);
+   // sf.
+    
     
     // #region affiche les valeurs des preferences
     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -44,15 +47,17 @@ public class Frame_Preferences extends PreferenceActivity implements OnSharedPre
     // #endregion
     // #region remplit List BT dispo
     try{    
-	    ListPreference LP_obd = (ListPreference)findPreference("pref_btpourobd");
-	    ListPreference LP_gps = (ListPreference)findPreference("pref_btpourgps");
+	    ListPreference LP_obd = (ListPreference)findPreference("pref_obd_name");
+	    ListPreference LP_gps = (ListPreference)findPreference("pref_gps_name");
+	    CharSequence[] test = Class_Bluetooth_.m_getListeBT();
+	    
 	    //pour test debuggage
-	    if (Class_Bluetooth.listePeriphBluetooth.isEmpty())
+	    Log.v("Liste OBD", String.format("%d", test.length));
+	    if (test.length==0)
 	    {
-	    	Class_Bluetooth.listePeriphBluetooth.add("ee");
-	    	Class_Bluetooth.listePeriphBluetooth.add("zz");
+	    	test = new CharSequence[] {"test","debuggage"};
 	    }
-	    CharSequence[] test = Class_Bluetooth.m_getListeBT();
+	    
 	    LP_gps.setEntries(test);
 	    LP_gps.setEntryValues(test);
 	    LP_obd.setEntries(test);
@@ -84,6 +89,15 @@ public void onSharedPreferenceChanged(SharedPreferences sP,
 	}
 	catch (Exception e) {
 		//Toast.makeText(this,e.toString(), Toast.LENGTH_SHORT).show();
+	}
+	if (key.equals("pref_videosize")){
+		try{
+			String[] values = sP.getString(key, "").split("X");
+			Class_Camera.cameraSize = new Point(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
+		}
+		catch (Exception e) {
+			Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT					).show();
+		}
 	}
 }
  

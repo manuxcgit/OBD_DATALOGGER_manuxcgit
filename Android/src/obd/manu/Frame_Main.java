@@ -6,30 +6,20 @@ package obd.manu;
 //http://kidrek.fr/blog/android/android-gestion-des-preferences-au-sein-dune-appli/
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
 import obd.manu.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.ComponentName;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.hardware.Camera;
-import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
-import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -51,12 +41,15 @@ public class Frame_Main extends Activity
 	private EditText liste;
 	private long lastTime = 0;
 	Chronometer Chrono ;
-	Class_Bluetooth BT = null;
+	Class_Bluetooth_OBD OBD = null;
 	Class_UserPreferences mPref ;
+	Context _context;
 	
+	ProgressDialog pDL;
 	
 	final Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
+        @Override
+		public void handleMessage(Message msg) {
             String data = msg.getData().getString("receivedData");
             
             long t = System.currentTimeMillis();
@@ -73,7 +66,8 @@ public class Frame_Main extends Activity
     };
     
     final Handler handlerStatus = new Handler() {
-        public void handleMessage(Message msg) {
+        @Override
+		public void handleMessage(Message msg) {
             int co = msg.arg1;
 
             if(co == 1) {
@@ -96,13 +90,18 @@ public class Frame_Main extends Activity
         Chrono = (Chronometer) findViewById(R.id.chronometer1);
    
         Context ctx = getApplicationContext();
+        _context = this;
         
         mPref = new Class_UserPreferences(ctx);
+        Log.v("ctx","ok");
         
-        // Class_Notifier.startStatusbarNotifications(ctx);
+        //Class_Notifier.startStatusbarNotifications(ctx);
         
         
-         BT = new Class_Bluetooth(handlerStatus, handler); 
+        // OBD = new  Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"), handlerStatus, handler, this); 
+        OBD= new Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"),_context, handler );
+        
+        //m_connectBT();
               
     	}
         catch (Exception e)
@@ -111,50 +110,52 @@ public class Frame_Main extends Activity
         }
     }
     
-    public void cmdClick(View view) 
-    {
+   
+    public void cmdClick(View view){
 		switch (view.getId()) 
 		{
 			case R.id.cmdEnvoyer:
 				// #region cmdEnvoyer
 				
-			/*	Chrono.setBase(SystemClock.elapsedRealtime());
+				Chrono.setBase(SystemClock.elapsedRealtime());
 				Chrono.setText("00:00.00");
 				Chrono.start();
-			
-				/*/
-				
+		
+			     
+			     
 				String texteSaisi = text.getText().toString();
 				if (texteSaisi.length() == 0) 
 				{
 					Toast.makeText(this, "Rien à envoyer !",
-							Toast.LENGTH_LONG).show();
+							Toast.LENGTH_SHORT).show();
 					return;
 				}
 				liste.append(">"+texteSaisi+"\r\n");
-				BT.m_sendData(texteSaisi+"\r");
+				OBD.m_sendData(texteSaisi+"\r");
 				break;
 				
 				// #endregion
 			case R.id.cmdTest:
 				// #region cmdTest
-				String value = mPref.m_getParam("pref_btpourobd");//text.getText().toString());//  m_getParam(text.getText().toString(), getApplicationContext());
-				//liste.append(text.getText().toString()+" .. "+value+"\r\n");
-				BT.m_setBT(value);
-			    BT.m_connect();
+				String value = mPref.m_getParam(text.getText().toString());//  m_getParam(text.getText().toString(), getApplicationContext());
+				liste.append(text.getText().toString()+" .. "+value+"\r\n");
+				//BT.m_setBT(value);
+			    //BT.m_connect();
 				break;
 				// #endregion
 		}
     }
     
-    public boolean onCreateOptionsMenu(Menu menu)
+    @Override
+	public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.layout.menu, menu); 
         return true;
      }
 
-    public boolean onOptionsItemSelected(MenuItem item)
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item)
    {
       switch (item.getItemId()) 
       {
@@ -165,7 +166,7 @@ public class Frame_Main extends Activity
             alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface arg0, int arg1) {
                 	try
-                	{BT.close();}
+                	{OBD.close();}
                 	catch (Exception e) {
 						// TODO: handle exception
 					}
@@ -197,7 +198,8 @@ public class Frame_Main extends Activity
       return false;
    }
     
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    @Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
         super.onKeyDown(keyCode, event);
             switch(keyCode)
             {

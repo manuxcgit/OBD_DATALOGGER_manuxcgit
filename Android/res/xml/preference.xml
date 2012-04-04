@@ -6,12 +6,12 @@
 	<ListPreference
 		android:summary="Pas de BT séléctionné"
 		android:title="BT pour OBD"
-		android:key="pref_btpourobd">
+		android:key="pref_obd_name">
 		</ListPreference>
 	<ListPreference
 		android:summary="Pas de BT séléctionné"
 		android:title="BT pour GPS"
-		android:key="pref_btpourgps"></ListPreference>
+		android:key="pref_gps_name"></ListPreference>
 	<EditTextPreference
 		android:summary="Manu test"
 		android:title="Manu test" android:password="true"
