@@ -1,23 +1,41 @@
 package obd.manu;
 
+import java.util.Map;
+
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.Toast;
 
 public class Class_UserPreferences {
-    private Context context;
+    private Context _context;
  
     //@Inject
     public Class_UserPreferences(Context context) {
-        this.context = context;
+        this._context = context;
     }
  
     SharedPreferences getDefaultSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        return PreferenceManager.getDefaultSharedPreferences(_context.getApplicationContext());
     }
  
     public String m_getParam(String Key) {
-        return getDefaultSharedPreferences().getString(Key, "default value");
+    	try{
+	    	Map<String, ?> _liste = getDefaultSharedPreferences().getAll();
+	        for (Map.Entry<String, ?>  couple : _liste.entrySet()) {
+	        	//Toast.makeText(_context, couple.getKey() , Toast.LENGTH_LONG).show();
+	        	if (Key.equals(couple.getKey()))
+	        	{
+	        		//Toast.makeText(_context, couple.getValue().toString() , Toast.LENGTH_LONG).show();
+	        		Log.v("m_getParam " + Key,couple.getValue().toString());
+	        		return (couple.getValue().toString());    		
+	        	}  
+	     	}
+    	}
+    	finally {} 
+        return "default value";
     }
  
 }

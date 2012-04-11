@@ -43,9 +43,9 @@ public class Frame_Main extends Activity
 	Chronometer Chrono ;
 	Class_Bluetooth_OBD OBD = null;
 	Class_UserPreferences mPref ;
-	Context _context;
+	//Context _context;
 	
-	ProgressDialog pDL;
+	//ProgressDialog pDL;
 	
 	final Handler handler = new Handler() {
         @Override
@@ -89,19 +89,17 @@ public class Frame_Main extends Activity
         liste = (EditText) findViewById(R.id.listReceived);
         Chrono = (Chronometer) findViewById(R.id.chronometer1);
    
-        Context ctx = getApplicationContext();
-        _context = this;
+        Context ctx = this.getApplicationContext();
+        //_context = this;
         
         mPref = new Class_UserPreferences(ctx);
         Log.v("ctx","ok");
         
         //Class_Notifier.startStatusbarNotifications(ctx);
         
+         
+        OBD= new Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"), this, handler );
         
-        // OBD = new  Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"), handlerStatus, handler, this); 
-        OBD= new Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"),_context, handler );
-        
-        //m_connectBT();
               
     	}
         catch (Exception e)
@@ -131,7 +129,7 @@ public class Frame_Main extends Activity
 					return;
 				}
 				liste.append(">"+texteSaisi+"\r\n");
-				OBD.m_sendData(texteSaisi+"\r");
+				OBD.m_sendData(texteSaisi+"\r",1000);
 				break;
 				
 				// #endregion

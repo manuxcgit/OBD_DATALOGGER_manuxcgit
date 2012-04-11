@@ -12,10 +12,12 @@
 		android:summary="Pas de BT séléctionné"
 		android:title="BT pour GPS"
 		android:key="pref_gps_name"></ListPreference>
-	<EditTextPreference
-		android:summary="Manu test"
-		android:title="Manu test" android:password="true"
-		android:key="test"></EditTextPreference>
+	<CheckBoxPreference
+		android:summary="off"
+		android:title="Debug"
+		android:summaryOn="Actif"
+	    android:summaryOff="Inactif" 
+		android:key="pref_debug"></CheckBoxPreference>
 </PreferenceCategory>
 <PreferenceCategory 
     android:title="Fichier LOG">

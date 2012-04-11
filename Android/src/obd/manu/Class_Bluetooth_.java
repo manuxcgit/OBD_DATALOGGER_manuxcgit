@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Timer;
 import java.util.UUID;
 
 import android.app.ProgressDialog;
@@ -61,17 +62,21 @@ public abstract class Class_Bluetooth_ {
 		// #endregion		
 	}
 	
-	public boolean m_sendData(String data) {
+	public boolean m_sendData(String data, int tempo) {
 		if (IsBusy)return false;
 		try {
 			sendStream.write(data.getBytes());
 	        sendStream.flush();
 	        IsBusy=true;
-	        return true;
+	        long start_time = System.currentTimeMillis();
+	        long elapsed_time = 0;
+	        while (IsBusy | elapsed_time<tempo) {	
+	        	elapsed_time = System.currentTimeMillis() - start_time;
+			}	        
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
 		}
+		return IsBusy;
 	}
 
 	protected void m_setBT(){

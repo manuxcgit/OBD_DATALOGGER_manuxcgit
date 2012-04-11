@@ -17,6 +17,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -28,16 +29,20 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 	private int WaterTemp;
 	private int OilTemp;
 	private boolean isInitialised = false;
+	private boolean debug = false;
 	ReceiverThread receiverThread;
 
-    	public Class_Bluetooth_OBD (String ClassName, Context context, Handler toMainFrame)// Handler hstatus, Handler h, Context context)
+    public Class_Bluetooth_OBD (String ClassName, Context context, Handler toMainFrame)// Handler hstatus, Handler h, Context context)
     	{
     		super(ClassName, context, toMainFrame);// hstatus, h, context);
     		receiverThread =  new ReceiverThread();
+    		Class_UserPreferences mPref = new Class_UserPreferences(_context) ;
+    		debug = (mPref.m_getParam("pref_debug")=="true");
+    		if (debug){Log.v("OBD","Debug on");}
     		this.m_connect();
     	}
     	
-    	protected void m_connect() {
+    protected void m_connect() {
 			pDL = new ProgressDialog(_context);		
 			pDL.setMax(4);
 			pDL.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -45,43 +50,50 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 			pDL.setMessage("Essai Connection");
 			pDL.show();
 			isInitialised=false;
-    		Thread InitialiseOBD = new Thread(new Runnable() {
-				
-				public void run() {
-
-					try{	
-   					m_setBT();
-   					// #region connect
-   					socket.connect();
-	   				IsConnected = true;
-	   				receiverThread.start();
-	   				m_incrementpDL("Connection ok, teste OBD ...");
-	   				m_sendData("ATZ\r");
-	   				Timer t= new Timer();
-	   				//attend isinialised, si tempo > 5s, erreur !!
-	   				
-	   				
-	   				Thread.sleep(2000);
-	   				
-	   				
-	   				} 
-					// #endregion
-	   				catch (Exception e) {
-	   					m_incrementpDL("Probleme de connection !!");
-	   					try {
-							Thread.sleep(2000);
-						} catch (Exception e2) {
-							// TODO: handle exception
-						}
-	   				}
-				
-	   				pDL.dismiss();
-	   			}
-    		});
     		InitialiseOBD.start();
 }
+    Thread InitialiseOBD = new Thread(new Runnable() {
+		
+		public void run() {
+
+			try{	
+				m_setBT();
+			// #region connecte
+				socket.connect();
+				IsConnected = true;
+				receiverThread.start();
+				m_incrementpDL("Connection ok, teste OBD ...");
+				if (!m_sendData("ATZ\r",5000)){
+					isInitialised=false;
+					return;						
+					}
+
+				
+				
+				Thread.sleep(2000);
+				
+				
+			// #endregion
+			// #region initialise
+				//echo off
+				m_sendData("ATE0", 1000);
+				m_sendData("ATSP0\r", 2000);
+			// #endregion
+				}
+				catch (Exception e) {
+					m_incrementpDL("Probleme de connection !!");
+					try {
+					Thread.sleep(2000);
+				} catch (Exception e2) {
+					// TODO: handle exception
+				}
+				}
+		
+				pDL.dismiss();
+			}
+	});
   
-    	protected class ReceiverThread extends Thread{
+    protected class ReceiverThread extends Thread{
     	 				
     			String data = "";
     		
@@ -122,14 +134,14 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
     				}
     		 }
  	
-	    Handler pDLincrement = new Handler() {
+	Handler pDLincrement = new Handler() {
 	        public void handleMessage(Message msg) {
 	        	pDL.setMessage(msg.getData().getString("Text"));
 	            pDL.incrementProgressBy(1);
 	        }
 	    };
   	    
-		public void m_incrementpDL(String newText) {		
+	public void m_incrementpDL(String newText) {		
 			Message msg = pDLincrement.obtainMessage();
 			Bundle b = new Bundle();
 			b.putString("Text", newText);
@@ -137,7 +149,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 	        pDLincrement.sendMessage(msg);		
 		}
 
-		Handler MessageReceived = new Handler(){
+	Handler MessageReceived = new Handler(){
 			public void handleMessage(Message msg){
 				String received = msg.getData().getString("data");
 				Toast.makeText(_context, received , Toast.LENGTH_SHORT).show();
