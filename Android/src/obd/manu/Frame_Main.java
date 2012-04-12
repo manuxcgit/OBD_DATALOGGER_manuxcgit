@@ -6,6 +6,9 @@ package obd.manu;
 //http://kidrek.fr/blog/android/android-gestion-des-preferences-au-sein-dune-appli/
 
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import obd.manu.R;
 
 import android.app.Activity;
@@ -35,8 +38,8 @@ import android.widget.Toast;
 
 public class Frame_Main extends Activity 
 {
-    /** Called when the activity is first created. */
 
+	boolean app_unique;
 	private EditText text;
 	private EditText liste;
 	private long lastTime = 0;
@@ -77,18 +80,33 @@ public class Frame_Main extends Activity
             }
        }
     };
-		
+	
+    public boolean isUnique() {
+        try {
+            app_unique = new FileOutputStream("lock").getChannel().tryLock() != null;
+        } catch(IOException ie) {
+            app_unique = false;
+            Log.e("unique", "erreur");
+        }
+        return app_unique;
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) 
     {
     	try
     	{
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);    
         text = (EditText) findViewById(R.id.editTextCodeAEnvoer);
         liste = (EditText) findViewById(R.id.listReceived);
         Chrono = (Chronometer) findViewById(R.id.chronometer1);
    
+    	if (!isUnique()){
+    		Toast.makeText(this, "doublon", Toast.LENGTH_SHORT).show();
+    		//finish();
+    	}
+    	
         Context ctx = this.getApplicationContext();
         //_context = this;
         

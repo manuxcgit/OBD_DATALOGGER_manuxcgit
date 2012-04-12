@@ -9,6 +9,7 @@ import obd.manu.Class_Bluetooth_.ReceiverThread;
 
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
+import android.R.integer;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -30,6 +31,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 	private int OilTemp;
 	private boolean isInitialised = false;
 	private boolean debug = false;
+	private String protocole_name = "";
 	ReceiverThread receiverThread;
 
     public Class_Bluetooth_OBD (String ClassName, Context context, Handler toMainFrame)// Handler hstatus, Handler h, Context context)
@@ -63,21 +65,29 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 				IsConnected = true;
 				receiverThread.start();
 				m_incrementpDL("Connection ok, teste OBD ...");
-				if (!m_sendData("ATZ\r",5000)){
+				m_sendData("ATZ\r", 5000);
+				if (!protocole_name.equals("ELM327") | IsBusy){
+					//isbusy donc probleme
 					isInitialised=false;
+					m_incrementpDL("Echec echo ELM327");
+					Thread.sleep(2000);
+					pDL.dismiss();
 					return;						
-					}
-
-				
-				
-				Thread.sleep(2000);
-				
-				
+					}						
 			// #endregion
 			// #region initialise
 				//echo off
-				m_sendData("ATE0", 1000);
-				m_sendData("ATSP0\r", 2000);
+				//m_sendData("ATE0\r", 1000);
+				//cherche protocole
+				//m_sendData("ATSP0\r", 1000);
+				m_sendData("ATDP\r", 1000);
+				m_incrementpDL(protocole_name);
+				Thread.sleep(2000);
+				//enleve les spaces
+				m_sendData("ATS0\r", 1000);
+				//teste un retour de valeur temp eau
+				m_sendData("0105\r", 1000);
+				Thread.sleep(2000);
 			// #endregion
 				}
 				catch (Exception e) {
@@ -152,12 +162,70 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 	Handler MessageReceived = new Handler(){
 			public void handleMessage(Message msg){
 				String received = msg.getData().getString("data");
-				Toast.makeText(_context, received , Toast.LENGTH_SHORT).show();
-				if (received.equalsIgnoreCase("atz elm327 v1.5>")){
-					isInitialised=true;
-					return;
+				if (debug){Toast.makeText(_context, received , Toast.LENGTH_LONG).show();}
+				//#region rpm
+				if (received.startsWith("010C")){
+					if (received.length()!=13)
+					{ RPM = -1; return;}
+					try {
+						RPM = ((Integer.parseInt(received.substring(8, 10), 16) * 256) + 
+								Integer.parseInt(received.substring(10, 12), 16)) / 4;
+						return;
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
 				}
-			}
+				//#endregion
+				//#region vitesse
+				if (received.startsWith("010D")){
+					if (received.length()!=11)
+					{ Speed = -1; return;}
+					try {
+						Speed = Integer.parseInt(received.substring(8, 10), 16);
+						return;
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+				}
+				//#endregion
+				//#region temp eau
+				if (received.startsWith("0105")){
+					if (received.length()!=11)
+					{ 
+						WaterTemp = -1;
+						if (received.endsWith("NO DATA>")){WaterTemp=-2;}
+						return;}
+					try {
+						WaterTemp = Integer.parseInt(received.substring(8, 10), 16) - 40;
+						return;
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+				}
+					
+				//#endregion
+				//#region temp huile
+				if (received.startsWith("015C")){
+					if (received.length()!=11)
+					{ OilTemp = -1; return;}
+					try {
+						OilTemp = Integer.parseInt(received.substring(8, 10), 16) - 40;
+						return;
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+				}
+				//#endregion
+				if (received.contains("ELM327 v1.5")){
+					//isInitialised=true;
+					protocole_name="ELM327";
+					return;
+					}
+				if (received.startsWith("ATDP")){
+					protocole_name = received.substring(4,received.length()-2);
+					return;
+					}
+				}
 		};
 }
 

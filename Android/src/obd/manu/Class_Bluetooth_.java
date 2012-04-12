@@ -70,7 +70,7 @@ public abstract class Class_Bluetooth_ {
 	        IsBusy=true;
 	        long start_time = System.currentTimeMillis();
 	        long elapsed_time = 0;
-	        while (IsBusy | elapsed_time<tempo) {	
+	        while (IsBusy & elapsed_time<tempo) {	
 	        	elapsed_time = System.currentTimeMillis() - start_time;
 			}	        
 		} catch (IOException e) {
