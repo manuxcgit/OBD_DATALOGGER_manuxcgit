@@ -114,13 +114,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
     						try {
     							if(receiveStream.available() > 0) {
     								byte buffer[] = new byte[100];
-    								//perd un peu de temps pour finir de charger buffer
-    								
-    							//	for(int i=0;i<100;i++)
-    							//	{}
-    								
-    								int k = receiveStream.read(buffer, 0, 100);
-    								
+    								int k = receiveStream.read(buffer, 0, 100);    								
     								if(k > 0) {
     									byte rawdata[] = new byte[k];
     									for(int i=0;i<k;i++)
@@ -162,7 +156,51 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 	Handler MessageReceived = new Handler(){
 			public void handleMessage(Message msg){
 				String received = msg.getData().getString("data");
-				if (debug){Toast.makeText(_context, received , Toast.LENGTH_LONG).show();}
+				if (debug){Toast.makeText(_context, received , Toast.LENGTH_SHORT).show();}
+				if (received.startsWith("01")){
+					try {
+						String value_string = received.substring(8, received.length()-2);
+						int value ;
+						if (debug){Toast.makeText(_context, value_string , Toast.LENGTH_LONG).show();}
+						if (value_string.contains("NO DATA")){
+							value=-1;
+						} 
+						else {
+							if (value_string.contains("CAN ERROR")){
+								value=-2;							
+							}
+							else{
+								value = m_getValue(value_string);
+							}							
+						}					
+						int type_donnee = Integer.parseInt(received.substring(2, 4), 16);
+						switch (type_donnee) {
+						case 12:
+							//rpm
+							RPM = value;
+							break;							
+						case 13:
+							//vitesse
+							Speed = value;
+							break;
+						case 05:
+							//temp eau
+							WaterTemp = value - 40;
+							break;
+						case 92:
+							//temp huile
+							OilTemp = value - 40;
+							break;
+
+						default:
+							break;
+						}
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+				}
+			}
+				/*
 				//#region rpm
 				if (received.startsWith("010C")){
 					if (received.length()!=13)
@@ -225,7 +263,23 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 					protocole_name = received.substring(4,received.length()-2);
 					return;
 					}
+				} */
+
+			private int m_getValue(String _value) {
+				try {
+					if (_value.length()==2){
+						return Integer.parseInt(_value, 16);
+					} else
+					{
+						return ((Integer.parseInt(_value.substring(0, 2), 16) * 256) + 
+								Integer.parseInt(_value.substring(2, 4), 16)) / 4;
+					}
+					
+				} catch (Exception e) {
+					// TODO: handle exception
 				}
+				return 0;
+			}
 		};
 }
 

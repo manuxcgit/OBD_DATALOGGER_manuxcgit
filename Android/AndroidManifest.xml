@@ -23,6 +23,6 @@
         <activity android:name=".Frame_Preferences"></activity>
         <activity android:name="Frame_PreviewCamera"></activity>
         <activity android:name="Frame_Recorder"></activity>
-
     </application>
+    
 </manifest>
