@@ -3,6 +3,7 @@ package obd.manu;
 import java.util.Map;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -26,8 +27,7 @@ public class Frame_Preferences extends PreferenceActivity implements OnSharedPre
 
     super.onCreate(savedInstanceState);
     addPreferencesFromResource(R.xml.preference);
-    SurfaceView sf = (SurfaceView) findViewById(R.id.surfaceview);
-   // sf.
+    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     
     
     // #region affiche les valeurs des preferences

@@ -4,4 +4,8 @@
     <string name="app_name">OBD</string>
     <string name="cmdTest">Test Connection</string>
     <string name="cmdEnvoyer">Envoyer</string>
+    <string name="textViewRPM">RPM : </string>
+    <string name="textViewVITESSE">Km/h  : </string>
+    <string name="textViewHUILETEMP">Huile ° : </string>
+    <string name="textViewEAUTEMP">Eau ° :</string>
 </resources>

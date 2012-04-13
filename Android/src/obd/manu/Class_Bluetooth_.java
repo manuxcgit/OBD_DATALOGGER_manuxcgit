@@ -26,6 +26,7 @@ public abstract class Class_Bluetooth_ {
 	
 	public boolean IsBusy = false;
 	public boolean IsConnected = false;
+	public boolean IsInitialized = false;
 	
 	private static ArrayList<CharSequence> listePeriphBluetooth = new ArrayList<CharSequence>();
 	BluetoothDevice device = null;

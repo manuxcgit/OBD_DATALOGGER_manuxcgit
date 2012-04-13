@@ -13,13 +13,14 @@
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".Frame_Main"
-                  android:label="@string/app_name">
+                  android:label="@string/app_name"
+                  android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Menu_Options"></activity>
+        <activity android:name=".Menu_Options" android:screenOrientation="landscape"></activity>
         <activity android:name=".Frame_Preferences"></activity>
         <activity android:name="Frame_PreviewCamera"></activity>
         <activity android:name="Frame_Recorder"></activity>

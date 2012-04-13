@@ -30,8 +30,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
@@ -39,18 +43,16 @@ import android.widget.Toast;
 public class Frame_Main extends Activity 
 {
 
-	boolean app_unique;
-	private EditText text;
-	private EditText liste;
+	boolean debug;
+	private EditText text_a_envoyer;
 	private long lastTime = 0;
-	Chronometer Chrono ;
 	Class_Bluetooth_OBD OBD = null;
 	Class_UserPreferences mPref ;
 	//Context _context;
 	
 	//ProgressDialog pDL;
 	
-	final Handler handler = new Handler() {
+/*	final Handler handler = new Handler() {
         @Override
 		public void handleMessage(Message msg) {
             String data = msg.getData().getString("receivedData");
@@ -67,91 +69,102 @@ public class Frame_Main extends Activity
             }
         }
     };
-    
-    final Handler handlerStatus = new Handler() {
+  */  
+    final Handler handlerMAJValues = new Handler() {
         @Override
 		public void handleMessage(Message msg) {
-            int co = msg.arg1;
+        /*    int co = msg.arg1;
 
             if(co == 1) {
             	liste.append("Connected\n");
             } else if(co == 2) {
             	liste.append("Disconnected\n");
-            }
+            }  */
        }
     };
-	
-    public boolean isUnique() {
-        try {
-            app_unique = new FileOutputStream("lock").getChannel().tryLock() != null;
-        } catch(IOException ie) {
-            app_unique = false;
-            Log.e("unique", "erreur");
-        }
-        return app_unique;
-    }
-    @Override
-    public void onCreate(Bundle savedInstanceState) 
-    {
-    	try
-    	{
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);    
-        text = (EditText) findViewById(R.id.editTextCodeAEnvoer);
-        liste = (EditText) findViewById(R.id.listReceived);
-        Chrono = (Chronometer) findViewById(R.id.chronometer1);
-   
-    	if (!isUnique()){
-    		Toast.makeText(this, "doublon", Toast.LENGTH_SHORT).show();
-    		//finish();
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+    	try{
+	        super.onCreate(savedInstanceState);
+	        //fullscreen
+	        requestWindowFeature(Window.FEATURE_NO_TITLE);
+	        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+	        setContentView(R.layout.main);    
+	        text_a_envoyer = (EditText) findViewById(R.id.editTextAEnvoyer);
+	        
+	//#region initialise
+	        Context ctx = this.getApplicationContext();
+	        mPref = new Class_UserPreferences(ctx);        
+	        //Class_Notifier.startStatusbarNotifications(ctx);
+	        Log.v("initialise OBD", "true" );
+	        if (OBD==null){
+	        	OBD= new Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"), this, handlerMAJValues );
+	        }
+	        debug = (mPref.m_getParam("pref_debug")=="true");
+	        m_adjustLinearLayouts(debug);	        	
+	 //#endregion       
+	        //evite extinction ecran
+	        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     	}
-    	
-        Context ctx = this.getApplicationContext();
-        //_context = this;
-        
-        mPref = new Class_UserPreferences(ctx);
-        Log.v("ctx","ok");
-        
-        //Class_Notifier.startStatusbarNotifications(ctx);
-        
-         
-        OBD= new Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"), this, handler );
-        
-              
-    	}
-        catch (Exception e)
-        {     
+        catch (Exception e){     
         	Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
         }
     }
     
-   
-    public void cmdClick(View view){
+
+
+	private void m_adjustLinearLayouts(boolean debug) {
+		try {
+			LinearLayout lL;
+			LayoutParams lParam;
+			int height = 100;
+			lL =  (LinearLayout)findViewById(R.id.linearLayoutDebug); 
+	        if (debug){	
+	        	lL.setVisibility(View.VISIBLE);//visible
+	        }
+	        else{
+	        	lL.setVisibility(View.INVISIBLE);//invisible
+	        	height+=30;
+	        }
+	        
+	        lL =  (LinearLayout)findViewById(R.id.linearLayout1);
+	        lParam = lL.getLayoutParams();
+	        lParam.height=height;
+	        lL.setLayoutParams(lParam);
+	        lL =  (LinearLayout)findViewById(R.id.linearLayout2);
+	        lParam = lL.getLayoutParams();
+	        lParam.height=height;
+	        lL.setLayoutParams(lParam);
+	        lL =  (LinearLayout)findViewById(R.id.linearLayout3);
+	        lParam = lL.getLayoutParams();
+	        lParam.height=height*2;
+	        lL.setLayoutParams(lParam);
+		} catch (Exception e) {
+			
+		}
+	}
+
+
+
+	public void cmdClick(View view){
 		switch (view.getId()) 
 		{
 			case R.id.cmdEnvoyer:
-				// #region cmdEnvoyer
-				
-				Chrono.setBase(SystemClock.elapsedRealtime());
-				Chrono.setText("00:00.00");
-				Chrono.start();
-		
-			     
-			     
-				String texteSaisi = text.getText().toString();
+				// #region cmdEnvoyer			     
+				String texteSaisi = text_a_envoyer.getText().toString();
 				if (texteSaisi.length() == 0) 
 				{
 					Toast.makeText(this, "Rien à envoyer !",
 							Toast.LENGTH_SHORT).show();
 					return;
 				}
-				liste.append(">"+texteSaisi+"\r\n");
 				OBD.m_sendData(texteSaisi+"\r",1000);
 				break;
 				
 				// #endregion
-			case R.id.cmdTest:
+	/*		case R.id.cmdTest:
 				// #region cmdTest
 				String value = mPref.m_getParam(text.getText().toString());//  m_getParam(text.getText().toString(), getApplicationContext());
 				liste.append(text.getText().toString()+" .. "+value+"\r\n");
@@ -159,6 +172,8 @@ public class Frame_Main extends Activity
 			    //BT.m_connect();
 				break;
 				// #endregion
+				 
+				 */
 		}
     }
     
@@ -202,12 +217,12 @@ public class Frame_Main extends Activity
         	startActivity(intent);
         	return true;
         	// #endregion
-        case R.id.menuPreviewVideo:
+      /*  case R.id.menuPreviewVideo:
         	// #region Preview Video
         	Intent intent1 = new Intent(this, Frame_Recorder.class);
         	startActivity(intent1);
         	return true;
-        	// #endregion
+        	// #endregion  */
      
       }
     		 
