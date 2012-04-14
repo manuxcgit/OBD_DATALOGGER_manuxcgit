@@ -53,14 +53,13 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 			pDL.show();
 			isInitialised=false;
     		InitialiseOBD.start();
-}
-    Thread InitialiseOBD = new Thread(new Runnable() {
-		
+    }
+    
+    Thread InitialiseOBD = new Thread(new Runnable() {		
 		public void run() {
-
 			try{	
 				m_setBT();
-			// #region connecte
+				// #region connecte
 				socket.connect();
 				IsConnected = true;
 				receiverThread.start();
@@ -74,34 +73,44 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 					pDL.dismiss();
 					return;						
 					}						
-			// #endregion
-			// #region initialise
-				//echo off
-				//m_sendData("ATE0\r", 1000);
-				//cherche protocole
-				//m_sendData("ATSP0\r", 1000);
-				m_sendData("ATDP\r", 1000);
-				m_incrementpDL(protocole_name);
-				Thread.sleep(2000);
-				//enleve les spaces
-				m_sendData("ATS0\r", 1000);
-				//teste un retour de valeur temp eau
-				m_sendData("0105\r", 1000);
-				Thread.sleep(2000);
-			// #endregion
-				}
-				catch (Exception e) {
-					m_incrementpDL("Probleme de connection !!");
-					try {
+				// #endregion
+				m_incrementpDL(m_initialise());
+			}
+			catch (Exception e) {
+				m_incrementpDL("Probleme de connection !!");
+				try {
 					Thread.sleep(2000);
-				} catch (Exception e2) {
+				} 
+				catch (Exception e2) {
 					// TODO: handle exception
 				}
-				}
-		
-				pDL.dismiss();
-			}
+			}		
+			pDL.dismiss();
+		}
 	});
+    
+	private String m_initialise() {
+		while (!isInitialised) {
+			m_sendData("0105\r", 1000);
+			if (WaterTemp<0){
+				m_sendData("ATSP0", 1000);
+				
+			}
+		}
+		//echo off
+		//m_sendData("ATE0\r", 1000);
+		//cherche protocole
+		//m_sendData("ATSP0\r", 1000);
+		m_sendData("ATDP\r", 1000);
+		m_incrementpDL(protocole_name);
+		Thread.sleep(2000);
+		//enleve les spaces
+		m_sendData("ATS0\r", 1000);
+		//teste un retour de valeur temp eau
+		m_sendData("0105\r", 1000);
+		Thread.sleep(2000);
+		return "ECHEC D'INITIALISATION !";
+	}
   
     protected class ReceiverThread extends Thread{
     	 				
@@ -162,11 +171,11 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 						String value_string = received.substring(8, received.length()-2);
 						int value ;
 						if (debug){Toast.makeText(_context, value_string , Toast.LENGTH_LONG).show();}
-						if (value_string.contains("NO DATA")){
+						if (received.contains("NO DATA")){
 							value=-1;
 						} 
 						else {
-							if (value_string.contains("CAN ERROR")){
+							if (received.contains("CAN ERROR") | received.contains("NOT FOUND")){
 								value=-2;							
 							}
 							else{

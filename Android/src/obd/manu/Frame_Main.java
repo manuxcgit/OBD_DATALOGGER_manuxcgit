@@ -94,7 +94,7 @@ public class Frame_Main extends Activity
 	        setContentView(R.layout.main);    
 	        text_a_envoyer = (EditText) findViewById(R.id.editTextAEnvoyer);
 	        
-	//#region initialise
+	        //#region initialise
 	        Context ctx = this.getApplicationContext();
 	        mPref = new Class_UserPreferences(ctx);        
 	        //Class_Notifier.startStatusbarNotifications(ctx);
