@@ -22,29 +22,27 @@ import android.widget.Toast;
 
 public abstract class Class_Bluetooth_ {
 	
-	// #region declarations
-	
+	// #region declarations	
 	public boolean IsBusy = false;
 	public boolean IsConnected = false;
-	public boolean IsInitialized = false;
+	public boolean IsInitialised = false;
 	
 	private static ArrayList<CharSequence> listePeriphBluetooth = new ArrayList<CharSequence>();
 	BluetoothDevice device = null;
 	BluetoothSocket socket = null;
 	InputStream receiveStream = null;
 	OutputStream sendStream = null;	
-	//protected ReceiverThread receiverThread;
 	protected Handler MessageReceived;
+	protected Handler ToMainFrame;
 	String BT_Name;
 	Context _context;
-
-	//Handler handler;
 	// #endregion
 
 	public Class_Bluetooth_(String NomBT, Context context, Handler toMainFrame){// Handler hstatus, Handler h, Context context) {	
 		//handler = null;// hstatus;		
 		BT_Name = NomBT;
 		_context = context;
+		ToMainFrame = toMainFrame;
 		m_listePeriph();
 	}
 	

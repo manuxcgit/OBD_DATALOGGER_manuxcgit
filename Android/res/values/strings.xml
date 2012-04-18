@@ -8,4 +8,6 @@
     <string name="textViewVITESSE">Km/h  : </string>
     <string name="textViewHUILETEMP">Huile ° : </string>
     <string name="textViewEAUTEMP">Eau ° :</string>
+    <string name="menuLancerLog">Lancer LOG</string>
+    <string name="menuArreterLog">Arreter LOG</string>
 </resources>

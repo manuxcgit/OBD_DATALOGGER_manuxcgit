@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import obd.manu.R;
+import obd.manu.R.string;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -36,6 +37,7 @@ import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -48,38 +50,27 @@ public class Frame_Main extends Activity
 	private long lastTime = 0;
 	Class_Bluetooth_OBD OBD = null;
 	Class_UserPreferences mPref ;
-	//Context _context;
+	Context ctx;
+	TextView tvRPM;
+	TextView tvSpeed;
+	TextView tvOilTemp;
+	TextView tvWaterTemp;
+	TextView tvEngagedGear;
 	
-	//ProgressDialog pDL;
-	
-/*	final Handler handler = new Handler() {
-        @Override
-		public void handleMessage(Message msg) {
-            String data = msg.getData().getString("receivedData");
-            
-            long t = System.currentTimeMillis();
-            if(t-lastTime > 100) 
-            {// Pour éviter que les messages soit coupés
-				lastTime = System.currentTimeMillis();
-			}
-            liste.append(data);
-            if (data.endsWith(">"))
-            {
-            	liste.append("\r\n");
-            }
-        }
-    };
-  */  
+	int log;
+
     final Handler handlerMAJValues = new Handler() {
         @Override
 		public void handleMessage(Message msg) {
-        /*    int co = msg.arg1;
-
-            if(co == 1) {
-            	liste.append("Connected\n");
-            } else if(co == 2) {
-            	liste.append("Disconnected\n");
-            }  */
+        	int[] values = {log*5,log*10,log*100,log*10};//OBD.getValues(); //water, oil, rpm, speed
+        	tvWaterTemp.setText(String.format("%3d", values[0]));
+        	tvOilTemp.setText(String.format("%3d", values[1]));
+        	tvRPM.setText(String.format("%5d", values[2]));
+        	tvSpeed.setText(String.format("%4d", values[3]));
+        	log++;
+        	/*
+        	 * engaged gear
+        	 */
        }
     };
 
@@ -95,8 +86,13 @@ public class Frame_Main extends Activity
 	        text_a_envoyer = (EditText) findViewById(R.id.editTextAEnvoyer);
 	        
 	        //#region initialise
-	        Context ctx = this.getApplicationContext();
-	        mPref = new Class_UserPreferences(ctx);        
+	        ctx = this.getApplicationContext();
+	        mPref = new Class_UserPreferences(ctx);   
+	        tvRPM = (TextView) findViewById(R.id.textViewRPMVALUE);
+	        tvSpeed = (TextView) findViewById(R.id.textViewVITESSEVALUE);
+	        tvOilTemp = (TextView) findViewById(R.id.textViewHUILETEMPVALUE);
+	        tvWaterTemp = (TextView) findViewById(R.id.textViewEAUTEMPVALUE);
+	        tvEngagedGear = (TextView) findViewById(R.id.textViewGEARENGAGED);
 	        //Class_Notifier.startStatusbarNotifications(ctx);
 	        Log.v("initialise OBD", "true" );
 	        if (OBD==null){
@@ -154,13 +150,15 @@ public class Frame_Main extends Activity
 			case R.id.cmdEnvoyer:
 				// #region cmdEnvoyer			     
 				String texteSaisi = text_a_envoyer.getText().toString();
-				if (texteSaisi.length() == 0) 
-				{
+				if (texteSaisi.length() == 0) {
 					Toast.makeText(this, "Rien à envoyer !",
 							Toast.LENGTH_SHORT).show();
 					return;
 				}
-				OBD.m_sendData(texteSaisi+"\r",1000);
+				if (OBD.IsInitialised){
+					OBD.m_sendData(texteSaisi+"\r",1000);
+				}
+				else {Toast.makeText(this, "OBD non initialisé",Toast.LENGTH_SHORT).show();}
 				break;
 				
 				// #endregion
@@ -217,6 +215,26 @@ public class Frame_Main extends Activity
         	startActivity(intent);
         	return true;
         	// #endregion
+        case R.id.menuLancerLog:
+        	try{
+	        	String title = item.getTitle().toString();
+	        	if (title.equals(getResources().getString(R.string.menuLancerLog))){
+	        		if (OBD.StartLog()) {
+	        			item.setTitle(string.menuArreterLog);
+	        		}
+	        		else{
+	        			Toast.makeText(this, "Echec au lancement du LOG",Toast.LENGTH_SHORT).show();
+	        		}
+	        	}
+	        	else {
+					OBD.StopLog();
+					item.setTitle(string.menuLancerLog);
+				}
+        	}
+        	catch (Exception e) {
+        		Toast.makeText(this, "Pas d'OBD trouvé",Toast.LENGTH_SHORT).show();
+			}
+        	return true;
       /*  case R.id.menuPreviewVideo:
         	// #region Preview Video
         	Intent intent1 = new Intent(this, Frame_Recorder.class);

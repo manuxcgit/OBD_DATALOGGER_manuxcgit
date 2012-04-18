@@ -43,7 +43,7 @@
     android:layout_height="100px"
     android:id="@+id/linearLayout2">
 		<TextView 
-		    android:layout_width="200px" 
+		    android:layout_width="215px" 
 		    android:layout_height="wrap_content"  
 		    android:id="@+id/textViewHUILETEMP"
 		    android:text="@string/textViewHUILETEMP"
@@ -51,13 +51,13 @@
 		</TextView>
 		<TextView
 		    android:id="@+id/textViewHUILETEMPVALUE"
-		    android:layout_width="150px"
+		    android:layout_width="185px"
 		    android:layout_height="wrap_content"
-		    android:text="00"
+		    android:text=" 00"
 		    android:textSize="80px" >
 		</TextView>
 		<TextView 
-		    android:layout_width="200px" 
+		    android:layout_width="195px" 
 		    android:layout_height="wrap_content"  
 		    android:id="@+id/textViewEAUTEMP"
 		    android:text="@string/textViewEAUTEMP"
@@ -67,7 +67,7 @@
 		    android:layout_width="150px" 
 		    android:layout_height="wrap_content"  
 		    android:id="@+id/textViewEAUTEMPVALUE"
-		    android:text="00"
+		    android:text=" 00"
 		    android:textSize="80px">
 		</TextView>
 	</LinearLayout>

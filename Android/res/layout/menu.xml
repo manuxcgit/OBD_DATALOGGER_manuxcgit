@@ -9,7 +9,7 @@
 <item android:id="@+id/menuQuitter" 
      android:title="Quitter" />
 
-<item android:id="@+id/LancerLog"
-    android:title="Lancer Log" />
+<item android:id="@+id/menuLancerLog"
+    android:title="@string/menuLancerLog" />
 </menu>
     
