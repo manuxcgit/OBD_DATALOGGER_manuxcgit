@@ -42,9 +42,9 @@ import android.widget.Toast;
 
 
 
-public class Frame_Main extends Activity 
-{
+public class Frame_Main extends Activity {
 
+	//#region declarations
 	boolean debug;
 	private EditText text_a_envoyer;
 	private long lastTime = 0;
@@ -56,6 +56,7 @@ public class Frame_Main extends Activity
 	TextView tvOilTemp;
 	TextView tvWaterTemp;
 	TextView tvEngagedGear;
+	//#endregion
 	
 	int log;
 
@@ -142,8 +143,6 @@ public class Frame_Main extends Activity
 		}
 	}
 
-
-
 	public void cmdClick(View view){
 		switch (view.getId()) 
 		{
@@ -176,16 +175,14 @@ public class Frame_Main extends Activity
     }
     
     @Override
-	public boolean onCreateOptionsMenu(Menu menu)
-    {
+	public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.layout.menu, menu); 
         return true;
      }
 
     @Override
-	public boolean onOptionsItemSelected(MenuItem item)
-   {
+	public boolean onOptionsItemSelected(MenuItem item)  {
       switch (item.getItemId()) 
       {
         case R.id.menuQuitter :

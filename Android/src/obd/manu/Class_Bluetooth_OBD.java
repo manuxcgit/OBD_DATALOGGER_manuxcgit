@@ -1,8 +1,11 @@
 package obd.manu;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Set;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -21,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.res.Resources.Theme;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
@@ -28,38 +32,55 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
-	
+
+	//#region declarations
 	private ProgressDialog pDL;
 	private int RPM;
 	private int Speed;
 	private int WaterTemp;
 	private int OilTemp;
-	//private boolean isInitialised = false;
+	private int etatThreadLog = 0; //0 si pas de thread, 1 si ok, 2 si erreur
+	private long intervalleLOG;
 	private boolean debug = false;
 	private String protocole_name = "";
 	ReceiverThread receiverThread;
 	LOGThread LogThread;
 	boolean wait_for_alert = false;
 	boolean quitter = false;
-	boolean loggerOBD = false;
+	Timer timerLOG ;
+    FileOutputStream fileOBD = null;
+    OutputStreamWriter oswOBD = null;
+	//boolean loggerOBD = false;
+	//#endregion
 
     public Class_Bluetooth_OBD (String ClassName, Context context, Handler toMainFrame)	{
     		super(ClassName, context, toMainFrame);// hstatus, h, context);
     		receiverThread =  new ReceiverThread();
     		Class_UserPreferences mPref = new Class_UserPreferences(_context) ;
     		debug = (mPref.m_getParam("pref_debug")=="true");
+    		try {
+				intervalleLOG = (long) Integer.parseInt(mPref.m_getParam("pref_periodeLOG"));
+			} catch (Exception e) {
+				intervalleLOG = 1000;
+			}
     		if (debug){Log.v("OBD","Debug on");}
     		this.m_connect();
     	}
     
     public boolean StartLog(){
 		LogThread = new LOGThread();
+		etatThreadLog = 0;
     	LogThread.start();
-    	return true;//LogThread.isAlive();
+    	while (etatThreadLog==0){ new Runnable() {			
+			public void run() {	
+			}
+		};}
+    	return (etatThreadLog==1);//LogThread.isAlive();
     }
     
     public void StopLog(){
-    	loggerOBD = false;
+    	//loggerOBD = false;
+    	timerLOG.cancel();
     }
     
     public int[] getValues(){
@@ -358,36 +379,68 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 		};
 	//#endregion
 	
-	protected class LOGThread extends Thread{		
+	protected class LOGThread extends Thread{	
+			 boolean LOGBusy;
+			 int LogOil = 1; //pour faire un releve de temperature toutes les 10 mesures
+			 
 			 protected  LOGThread() {};
 			 
 			 public void run() {
-				 Looper.prepare();
-				 if (!IsInitialised){	
-					 AlertDialog.Builder alertbox = new AlertDialog.Builder(_context);
-						alertbox.setTitle("LOG Impossible");
-			            alertbox.setMessage("OBD non initialisé");
-			            alertbox.setPositiveButton("Retour", new DialogInterface.OnClickListener() {
-			                public void onClick(DialogInterface arg0, int arg1) {
-			                		              	
-			                }
-			            });
-						alertbox.show();
-						Looper.loop();
-						return;
-					}
-				 loggerOBD = true;
-				 while (loggerOBD){
-						ToMainFrame.sendEmptyMessage(0);
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+				 try {
+					 Looper.prepare();
+					 if (!IsInitialised){	
+						 AlertDialog.Builder alertbox = new AlertDialog.Builder(_context);
+							alertbox.setTitle("LOG Impossible");
+				            alertbox.setMessage("OBD non initialisé");
+				            alertbox.setPositiveButton("Retour", new DialogInterface.OnClickListener() {
+				                public void onClick(DialogInterface arg0, int arg1) {
+				                		              	
+				                }
+				            });
+							alertbox.show();
+							etatThreadLog = 2;
+							Looper.loop();
+							return;
 						}
-					} 
-			 }
-			 
+					 //loggerOBD = true;
+					 timerLOG = new Timer();
+					 LOGBusy = false;
+					 timerLOG.scheduleAtFixedRate(new TimerTask() {					
+						@Override
+						public void run() {
+							if (!LOGBusy){
+								LOGBusy=true;
+								m_sendData("010C\r", 1000);
+								m_sendData("010D\r", 1000);
+								if (LogOil==10){
+									m_sendData("0105\r", 1000);
+									m_sendData("015C\r", 1000);
+									LogOil = 0;
+								}
+								LogOil++;
+								//sauve données dans fichier
+								ToMainFrame.sendEmptyMessage(0);
+								LOGBusy=false;
+							}
+						}
+					}, 0, intervalleLOG);
+					etatThreadLog = 1;
+				/*	 while (loggerOBD){
+							ToMainFrame.sendEmptyMessage(0);
+							//#region pour test sans OBD
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							//#endregion
+						} */
+				 }
+				 catch (Exception e) {
+					etatThreadLog = 2;
+				}
+			 }			 
 	}
     /*
 	Thread thread_LOG = new Thread(new Runnable(){
@@ -413,5 +466,30 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 			} 
 		}
 	}); */
+	
+	 public void WriteSettings(Context context, String data){
+	        FileOutputStream fOut = null;
+	        OutputStreamWriter osw = null;
+	 
+	        try{
+	           fOut = context.openFileOutput("settings.dat",MODE_APPEND);
+	            osw = new OutputStreamWriter(fOut);
+	            osw.write(data);
+	            osw.flush();
+	           //popup surgissant pour le résultat
+	            Toast.makeText(context, "Settings saved",Toast.LENGTH_SHORT).show();
+	            }
+	            catch (Exception e) {
+	                    Toast.makeText(context, "Settings not saved",Toast.LENGTH_SHORT).show();
+	            }
+	            finally {
+	               try {
+	                      osw.close();
+	                      fOut.close();
+	                      } catch (IOException e) {
+	                               Toast.makeText(context, "Settings not saved",Toast.LENGTH_SHORT).show();
+	                      }
+	            }
+	       }
 }
 
