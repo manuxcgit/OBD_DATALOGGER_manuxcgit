@@ -154,10 +154,10 @@ public class Frame_Main extends Activity {
 							Toast.LENGTH_SHORT).show();
 					return;
 				}
-				if (OBD.IsInitialised){
+				try{
 					OBD.m_sendData(texteSaisi+"\r",1000);
 				}
-				else {Toast.makeText(this, "OBD non initialisé",Toast.LENGTH_SHORT).show();}
+				catch (Exception e) {Toast.makeText(this, "OBD non initialisé",Toast.LENGTH_SHORT).show();}
 				break;
 				
 				// #endregion
