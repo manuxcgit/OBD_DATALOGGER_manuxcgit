@@ -12,7 +12,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import obd.manu.Class_Bluetooth_.ReceiverThread;
+import obd.manu.Class_Bluetooth.ReceiverThread;
 
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
@@ -36,7 +36,7 @@ import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
+public class Class_Bluetooth_OBD extends Class_Bluetooth {
 
 	//#region declarations
 	private ProgressDialog pDL;
@@ -49,7 +49,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 	private long start_time_LOG;
 	private boolean debug = false;
 	private String protocole_name = "";
-	ReceiverThread receiverThread;
+	//ReceiverThread receiverThread;
 	LOGThread LogThread;
 	boolean wait_for_alert = false;
 	boolean quitter = false;
@@ -59,9 +59,9 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 	//boolean loggerOBD = false;
 	//#endregion
 
-    public Class_Bluetooth_OBD (String ClassName, Context context, Handler toMainFrame)	{
-    		super(ClassName, context, toMainFrame);// hstatus, h, context);
-    		receiverThread =  new ReceiverThread();
+    public Class_Bluetooth_OBD (String ClassName, Context context, Handler toMainFrame, String receivedSplit)	{
+    		super(ClassName, context, toMainFrame, receivedSplit);// hstatus, h, context);
+    		//receiverThread =  new ReceiverThread();
     		Class_UserPreferences mPref = new Class_UserPreferences(_context) ;
     		debug = (mPref.m_getParam("pref_debug")=="true");
     		try {
@@ -318,7 +318,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 	//#endregion
 	
 	//#region reception message
-	protected class ReceiverThread extends Thread{
+/*	protected class ReceiverThread extends Thread{
 			
 		String data = "";
 	
@@ -355,6 +355,8 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 	
 	Handler MessageReceived = new Handler(){
 			public void handleMessage(Message msg){
+			*/
+	protected  void m_traiteMessage(Message msg){
 				String received = msg.getData().getString("data");
 				if (debug){Toast.makeText(_context, received , Toast.LENGTH_SHORT).show();}
 				if (received.startsWith("01")){
@@ -407,7 +409,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 					protocole_name = received.substring(4,received.length()-2);
 					return;
 					}
-			}
+			};
 				/*
 				//#region rpm
 				if (received.startsWith("010C")){
@@ -488,7 +490,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth_ {
 				}
 				return 0;
 			}
-		};
+		
 	//#endregion
 	
 	protected class LOGThread extends Thread{	

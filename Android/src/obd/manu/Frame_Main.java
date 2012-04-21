@@ -97,7 +97,7 @@ public class Frame_Main extends Activity {
 	        //Class_Notifier.startStatusbarNotifications(ctx);
 	        Log.v("initialise OBD", "true" );
 	        if (OBD==null){
-	        	OBD= new Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"), this, handlerMAJValues );
+	        	OBD= new Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"), this, handlerMAJValues, ">" );
 	        }
 	        debug = (mPref.m_getParam("pref_debug")=="true");
 	        m_adjustLinearLayouts(debug);	        	

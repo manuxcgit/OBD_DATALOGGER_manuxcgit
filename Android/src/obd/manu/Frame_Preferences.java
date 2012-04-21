@@ -49,7 +49,7 @@ public class Frame_Preferences extends PreferenceActivity implements OnSharedPre
     try{    
 	    ListPreference LP_obd = (ListPreference)findPreference("pref_obd_name");
 	    ListPreference LP_gps = (ListPreference)findPreference("pref_gps_name");
-	    CharSequence[] test = Class_Bluetooth_.m_getListeBT();
+	    CharSequence[] test = Class_Bluetooth.m_getListeBT();
 	    
 	    //pour test debuggage
 	    Log.v("Liste OBD", String.format("%d", test.length));
