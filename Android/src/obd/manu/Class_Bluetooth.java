@@ -5,10 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.Timer;
 import java.util.UUID;
 
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -75,7 +73,7 @@ public abstract class Class_Bluetooth {
     public static CharSequence[] m_getListeBT(){
     	//retourne la liste des bluetooth dispos
     	m_listePeriph();
-    	CharSequence[] result = new CharSequence[listePeriphBluetooth.size()];
+    	CharSequence[] result = new CharSequence[listeNomPeriphBluetooth.size()];
     	for (int i=0; i<listeNomPeriphBluetooth.size();i++)
     	{	
     		result[i]=listeNomPeriphBluetooth.get(i);
@@ -95,16 +93,17 @@ public abstract class Class_Bluetooth {
     
     protected String m_sendData(String data, int tempo) {
 		if (IsBusy)return "Busy";
-		IsBusy=true;
+		if (sendStream==null){return "OBD non connecté";}
 		try {
 			sendStream.write(data.getBytes());
 	        sendStream.flush();
+			IsBusy=true;
 	        long start_time = System.currentTimeMillis();
 	        long elapsed_time = 0;
 	        while (IsBusy & elapsed_time<tempo) {	
 	        	elapsed_time = System.currentTimeMillis() - start_time;
 			}	        
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return "IsBusy";
@@ -120,24 +119,11 @@ public abstract class Class_Bluetooth {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				break;
+				return;
 			}
 		}
-	/*	Set<BluetoothDevice> setpairedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
-			BluetoothDevice[] pairedDevices = setpairedDevices.toArray(new BluetoothDevice[setpairedDevices.size()]);
-			for(int i=0;i<pairedDevices.length;i++) {
-				if(pairedDevices[i].getName().contains(BT_Name)) {
-					device = pairedDevices[i];
-					try {
-						socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-						receiveStream = socket.getInputStream();
-						sendStream = socket.getOutputStream();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					break;
-				}
-			}*/
+		Log.v(BT_Name,"introuvable");
+		Toast.makeText(_context, BT_Name + " pour OBD introuvable !", Toast.LENGTH_LONG).show();
 	}
 	
 	protected abstract void m_connect() ;
@@ -161,8 +147,9 @@ public abstract class Class_Bluetooth {
 		
 			 protected ReceiverThread(){}
 			 
-			 public void run() {
-					while(true) {
+			 @Override
+			public void run() {
+					while(receiveStream!=null) {
 						try {
 							if(receiveStream.available() > 0) {
 								byte buffer[] = new byte[100];
@@ -193,6 +180,7 @@ public abstract class Class_Bluetooth {
 		protected abstract void m_traiteMessage(Message msg);
 		
 		Handler MessageReceived = new Handler(){
+				@Override
 				public void handleMessage(Message msg){
 					m_traiteMessage(msg);
 				}

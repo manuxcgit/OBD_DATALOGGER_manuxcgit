@@ -11,7 +11,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.widget.Toast;
 
 
@@ -50,14 +49,6 @@ public class Frame_Preferences extends PreferenceActivity implements OnSharedPre
 	    ListPreference LP_obd = (ListPreference)findPreference("pref_obd_name");
 	    ListPreference LP_gps = (ListPreference)findPreference("pref_gps_name");
 	    CharSequence[] test = Class_Bluetooth.m_getListeBT();
-	    
-	    //pour test debuggage
-	    Log.v("Liste OBD", String.format("%d", test.length));
-	    if (test.length==0)
-	    {
-	    	test = new CharSequence[] {"test","debuggage"};
-	    }
-	    
 	    LP_gps.setEntries(test);
 	    LP_gps.setEntryValues(test);
 	    LP_obd.setEntries(test);

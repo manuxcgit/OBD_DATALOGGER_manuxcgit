@@ -1,39 +1,24 @@
 package obd.manu;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
-import java.util.logging.Logger;
 
-import obd.manu.Class_Bluetooth.ReceiverThread;
-
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-
-import android.R.integer;
-import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources.Theme;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.MessageQueue;
 import android.text.format.Time;
 import android.util.Log;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 public class Class_Bluetooth_OBD extends Class_Bluetooth {
@@ -56,6 +41,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	Timer timerLOG ;
     File fileOBD = null;
     FileWriter writerOBD = null;
+    AlertDialog.Builder alertbox;
 	//boolean loggerOBD = false;
 	//#endregion
 
@@ -65,7 +51,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
     		Class_UserPreferences mPref = new Class_UserPreferences(_context) ;
     		debug = (mPref.m_getParam("pref_debug")=="true");
     		try {
-				intervalleLOG = (long) Integer.parseInt(mPref.m_getParam("pref_periodeLOG"));
+				intervalleLOG = Integer.parseInt(mPref.m_getParam("pref_periodeLOG"));
 			} catch (Exception e) {
 				intervalleLOG = 1000;
 			}
@@ -96,7 +82,8 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
     	return new int[] {WaterTemp, OilTemp, RPM, Speed};
     }
     //#region connection
-    protected void m_connect() {
+    @Override
+	protected void m_connect() {
 			pDL = new ProgressDialog(_context);		
 			pDL.setMax(4);
 			pDL.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -111,71 +98,70 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
     	public void run() {
 			try{
 				Looper.prepare();
+				Thread.sleep(1000);
 				m_setBT();
+				Log.v("m_setBT","ok");
 				// #region connecte
-				socket.connect();
+				if (socket!=null){
+					socket.connect();
+					m_incrementpDL("Connection ok, teste OBD ...");
+				}
+				else {
+					if (!debug){
+						m_incrementpDL("Connection échouée");
+						Thread.sleep(2000);
+						pDL.dismiss();
+						return;
+					}
+					else{
+						m_incrementpDL("Connection mode Debug !!");
+					}
+				}
 				IsConnected = true;
 				receiverThread.start();
-				m_incrementpDL("Connection ok, teste OBD ...");
-				m_sendData("ATZ\r", 5000);
-				if (!protocole_name.equals("ELM327") | IsBusy){
-					//isbusy donc probleme
-					IsInitialised=false;
-					m_incrementpDL("Echec echo ELM327");
-					Thread.sleep(2000);
-					pDL.dismiss();
-					return;						
-					}						
+				Log.v("receiverThread","ok");
+				Thread.sleep(2000);
+				String answer = m_sendData("ATZ\r", 5000);
+				Log.v("ATZ",answer);
+				if (!answer.equals("ELM327") | IsBusy) {
+					if (!debug){
+						//isbusy donc probleme
+						IsInitialised=false;
+						m_incrementpDL("Echec echo ELM327");
+						Thread.sleep(5000);
+						pDL.dismiss();
+						return;						
+					}	
+					else{
+						m_incrementpDL("Echo DEBUB");
+						Thread.sleep(2000);
+					}
+				}
 				// #endregion
 				//supprime les " " dans les reponses
-				wait_for_alert = true;
-				AlertDialog.Builder alertbox = new AlertDialog.Builder(_context);
-				alertbox.setTitle("Probleme d'initialisation");
-	            alertbox.setMessage("Voulez vous réessayer ?");
-	            alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
-	                public void onClick(DialogInterface arg0, int arg1) {
-	                	try	{
-	                		m_sendData("0105\r", 1000);
-	                		if (WaterTemp<-1){
-	                			m_sendData("ATSP0", 1000);
-	                		}
-	                	}
-	                	catch (Exception e) {
-							// TODO: handle exception
-						}
-	                	wait_for_alert = false;
-	                }
-	            });
-	            alertbox.setNegativeButton("Non", new DialogInterface.OnClickListener() {           
-	                public void onClick(DialogInterface arg0, int arg1) {
-	                	wait_for_alert = false;
-	                	quitter=true;
-	                }
-	            });
-	            alertbox.show();
-	         //   while (wait_for_alert){	            Looper.loop(); }
-				m_sendData("ATS0\r", 1000);
-	            
-	            Looper.loop();
-				//m_sendData("0105\r", 1000);
-			//	m_initialise.start();
-				//while (!IsInitialised){}
-				
-				
+				answer = m_sendData("ATS0\r", 1000);
+	            Log.v("ATS0",answer);
+				m_initialise.start();
+				while (!IsInitialised & !quitter){}				
 				m_incrementpDL(protocole_name);
 				//Looper.loop();
 				Thread.sleep(2000);
+				if (IsInitialised){
+					m_incrementpDL("INITIALISATION REUSSIE !!");
+					Thread.sleep(2000);
+				}
 			}
 			catch (Exception e) {
-				m_incrementpDL(e.getMessage());
 				try {
+					pDL.dismiss();
+					m_incrementpDL(e.getMessage());	
 					Thread.sleep(2000);
 				} 
-				catch (Exception e2) {
-					m_incrementpDL("Probleme de connection !!");
-				}
-			}		
+				catch (Exception e2) {				}
+			}	
 			pDL.dismiss();
+			Log.v("pDL","dismiss");
+			//Looper.loop();
 		}
 	});
     
@@ -183,20 +169,26 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 		public void run() {
 			
 			Looper.prepare();
-			while (!IsInitialised) {
-				m_sendData("0105\r", 1000);
+			IsInitialised = false;
+			quitter = false;
+			WaterTemp = -2;
+			String test;
+			while (!IsInitialised & !quitter) {
+				test = m_sendData("0105\r", 1000);
+	            Log.v("0105",test);
 				if (WaterTemp<-1){
-					Looper.loop();
 					wait_for_alert = true;
-					AlertDialog.Builder alertbox = new AlertDialog.Builder(_context);
-					alertbox.setTitle("Probleme d'initialisation");
+					alertbox = new AlertDialog.Builder(_context);
+					alertbox.setTitle("INITIALISATION IMPOSSIBLE");
 		            alertbox.setMessage("Voulez vous réessayer ?");
 		            alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
 		                public void onClick(DialogInterface arg0, int arg1) {
 		                	try	{
-		                		m_sendData("0105\r", 1000);
+		                		String test = m_sendData("0105\r", 1000);
+		        	            Log.v("0105",test);
 		                		if (WaterTemp<-1){
-		                			m_sendData("ATSP0", 1000);
+		                			test = m_sendData("ATSP0\r", 1000);
+			        	            Log.v("ATSP0",test);
 		                		}
 		                	}
 		                	catch (Exception e) {
@@ -211,15 +203,13 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 		                	quitter=true;
 		                }
 		            });
-		            alertbox.show();
-		            Looper.loop();
+		            alertBoxShow();
 		            while (wait_for_alert){}
 		            if (quitter) {protocole_name = "ECHEC D'INITIALISATION !";}
 				}
 				if (WaterTemp==-1){
-					Looper.loop();
 					wait_for_alert = true;
-					AlertDialog.Builder alertbox = new AlertDialog.Builder(_context);
+					alertbox = new AlertDialog.Builder(_context);
 					alertbox.setTitle("Probleme de TEST");
 		            alertbox.setMessage("Voulez vous réessayer avec moteur démarré ?");
 		            alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
@@ -233,14 +223,16 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 		                	quitter = true;
 		                }
 		            });
-		            alertbox.show();
-		            Looper.loop();
+		            alertBoxShow();
 		            while (wait_for_alert){}
 		            if (quitter){protocole_name =  "ECHEC D'INITIALISATION !";}
 				}
 				if (WaterTemp>0){IsInitialised=true;}			
 			}
-			m_sendData("ATDP\r", 1000);
+			Log.i("initialisation", protocole_name);
+			if (quitter) {return;}
+			test = m_sendData("ATDP\r", 1000);
+            Log.v("ATDP",test);
 		}
 	});
 	/*{
@@ -302,19 +294,31 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	}*/
  	
 	Handler pDLincrement = new Handler() {
-	        public void handleMessage(Message msg) {
+	        @Override
+			public void handleMessage(Message msg) {
 	        	pDL.setMessage(msg.getData().getString("Text"));
 	            pDL.incrementProgressBy(1);
 	        }
 	    };
   	    
-	public void m_incrementpDL(String newText) {	
+	private void m_incrementpDL(String newText) {	
 			Message msg = pDLincrement.obtainMessage();
 			Bundle b = new Bundle();
 			b.putString("Text", newText);
 	        msg.setData(b);
 	        pDLincrement.sendMessage(msg);		
 		}
+	
+	private void alertBoxShow(){
+		alertboxShow.sendEmptyMessage(0);
+	}
+	
+	Handler alertboxShow = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+        	alertbox.show();
+        }
+	};
 	//#endregion
 	
 	//#region reception message
@@ -356,6 +360,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	Handler MessageReceived = new Handler(){
 			public void handleMessage(Message msg){
 			*/
+	@Override
 	protected  void m_traiteMessage(Message msg){
 				String received = msg.getData().getString("data");
 				if (debug){Toast.makeText(_context, received , Toast.LENGTH_SHORT).show();}
@@ -499,7 +504,8 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 			 
 			 protected  LOGThread() {};
 			 
-			 public void run() {
+			 @Override
+			public void run() {
 				 try {
 					 Looper.prepare();
 					 if (!IsInitialised){	
@@ -558,7 +564,6 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 				}
 			 }			 
 	}
-
 	
 	 public void WriteLOG() {
 		 try{

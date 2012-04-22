@@ -6,24 +6,18 @@ package obd.manu;
 //http://kidrek.fr/blog/android/android-gestion-des-preferences-au-sein-dune-appli/
 
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import obd.manu.R;
 import obd.manu.R.string;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -34,7 +28,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -147,7 +140,7 @@ public class Frame_Main extends Activity {
 		switch (view.getId()) 
 		{
 			case R.id.cmdEnvoyer:
-				// #region cmdEnvoyer			     
+				// #region cmdEnvoyer
 				String texteSaisi = text_a_envoyer.getText().toString();
 				if (texteSaisi.length() == 0) {
 					Toast.makeText(this, "Rien à envoyer !",
@@ -155,22 +148,14 @@ public class Frame_Main extends Activity {
 					return;
 				}
 				try{
-					OBD.m_sendData(texteSaisi+"\r",1000);
+					String test = OBD.m_sendData(texteSaisi+"\r",1000);					
+    	            Log.v(texteSaisi,test);
+    	            Toast.makeText(this, test,Toast.LENGTH_SHORT).show();
 				}
 				catch (Exception e) {Toast.makeText(this, "OBD non initialisé",Toast.LENGTH_SHORT).show();}
 				break;
 				
 				// #endregion
-	/*		case R.id.cmdTest:
-				// #region cmdTest
-				String value = mPref.m_getParam(text.getText().toString());//  m_getParam(text.getText().toString(), getApplicationContext());
-				liste.append(text.getText().toString()+" .. "+value+"\r\n");
-				//BT.m_setBT(value);
-			    //BT.m_connect();
-				break;
-				// #endregion
-				 
-				 */
 		}
     }
     

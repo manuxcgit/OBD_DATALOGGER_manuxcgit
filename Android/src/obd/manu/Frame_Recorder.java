@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import android.app.Activity;
-import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.util.Log;

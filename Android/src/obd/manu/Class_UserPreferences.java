@@ -4,10 +4,8 @@ import java.util.Map;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 public class Class_UserPreferences {
     private Context _context;
