@@ -36,6 +36,7 @@ public abstract class Class_Bluetooth {
 	ReceiverThread receiverThread;
 	String BT_Name;
 	String _receivedSplit;
+	private String receivedData;
 	Context _context;
 	// #endregion
 
@@ -92,7 +93,7 @@ public abstract class Class_Bluetooth {
 	}
     
     protected String m_sendData(String data, int tempo) {
-		if (IsBusy)return "Busy";
+		if (IsBusy) {return "IsBusy";}
 		if (sendStream==null){return "OBD non connecté";}
 		try {
 			sendStream.write(data.getBytes());
@@ -104,9 +105,12 @@ public abstract class Class_Bluetooth {
 	        	elapsed_time = System.currentTimeMillis() - start_time;
 			}	        
 		} catch (Exception e) {
-			e.printStackTrace();
+			return "m_sendData EXCEPTION";
 		}
-		return "IsBusy";
+		if (IsBusy){return "IsBusy";}
+		else{
+			return receivedData.substring(data.length());
+		}
 	}
 
 	protected void m_setBT(){
@@ -165,6 +169,7 @@ public abstract class Class_Bluetooth {
 										b.putString("data", data);
 						                msg.setData(b);
 						                MessageReceived.sendMessage(msg);
+						                receivedData = data;
 						                data = "";
 						                IsBusy = false;
 									}
