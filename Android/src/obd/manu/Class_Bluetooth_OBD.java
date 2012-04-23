@@ -123,7 +123,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 				Thread.sleep(2000);
 				String answer = m_sendData("ATZ\r", 5000);
 				Log.v("ATZ",answer);
-				if (!answer.equals("ELM327") | IsBusy) {
+				if (!protocole_name.equals("ELM327") | IsBusy) {
 					if (!debug){
 						//isbusy donc probleme
 						IsInitialised=false;
@@ -134,15 +134,19 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 					}	
 					else{
 						m_incrementpDL("Echo DEBUB");
-						Thread.sleep(2000);
 					}
 				}
+				else{
+					m_incrementpDL("ELM 327 ok");
+				}
+				Thread.sleep(2000);
 				// #endregion
 				//supprime les " " dans les reponses
 				answer = m_sendData("ATS0\r", 1000);
 	            Log.v("ATS0",answer);
 				m_initialise.start();
-				while (!IsInitialised & !quitter){}				
+				while (!IsInitialised & !quitter){}		
+				Thread.sleep(200);//pour recuperer protocole_name
 				m_incrementpDL(protocole_name);
 				//Looper.loop();
 				Thread.sleep(2000);
@@ -153,8 +157,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 			}
 			catch (Exception e) {
 				try {
-					pDL.dismiss();
-					m_incrementpDL(e.getMessage());	
+					m_incrementpDL("Erreur non prévue ....");	
 					Thread.sleep(2000);
 				} 
 				catch (Exception e2) {				}
@@ -179,7 +182,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 				if (WaterTemp<-1){
 					wait_for_alert = true;
 					alertbox = new AlertDialog.Builder(_context);
-					alertbox.setTitle("INITIALISATION IMPOSSIBLE");
+					alertbox.setTitle("Problème de Protocole");
 		            alertbox.setMessage("Voulez vous réessayer ?");
 		            alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
 		                public void onClick(DialogInterface arg0, int arg1) {
@@ -204,8 +207,6 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 		                }
 		            });
 		            alertBoxShow();
-		            while (wait_for_alert){}
-		            if (quitter) {protocole_name = "ECHEC D'INITIALISATION !";}
 				}
 				if (WaterTemp==-1){
 					wait_for_alert = true;
@@ -224,10 +225,13 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 		                }
 		            });
 		            alertBoxShow();
-		            while (wait_for_alert){}
-		            if (quitter){protocole_name =  "ECHEC D'INITIALISATION !";}
 				}
-				if (WaterTemp>0){IsInitialised=true;}			
+	            while (wait_for_alert){}
+	            if (quitter){protocole_name =  "ECHEC D'INITIALISATION !";}
+				if (WaterTemp>0)
+				{IsInitialised=true;
+				Toast.makeText(_context, "Initialisation OK", Toast.LENGTH_SHORT).show();
+				}			
 			}
 			Log.i("initialisation", protocole_name);
 			if (quitter) {return;}
@@ -370,17 +374,19 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 				int value ;
 				if (debug){Toast.makeText(_context, value_string , Toast.LENGTH_LONG).show();}
 				if (received.contains("NO DATA")){
-					value=-1;
+					value=39;//-2 au final
 				} 
 				else {
-					if (received.contains("CAN ERROR") | received.contains("NOT FOUND")){
-						value=-2;							
+					if (received.contains("CAN ERROR") | received.contains("NOT FOUND") | received.contains("UNABLE TO CONNECT")){
+						value=38;// -1 au final							
 					}
 					else{
 						value = m_getValue(value_string);
 					}							
 				}					
 				int type_donnee = Integer.parseInt(received.substring(2, 4), 16);
+				//if (debug)
+				//{Toast.makeText(_context, String.format("%d", type_donnee), Toast.LENGTH_SHORT).show();}
 				switch (type_donnee) {
 				case 12:
 					//rpm
@@ -402,6 +408,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 				default:
 					break;
 				}
+				return;
 			} catch (Exception e) {
 				// TODO: handle exception
 			}

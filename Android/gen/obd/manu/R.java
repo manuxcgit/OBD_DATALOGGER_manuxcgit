@@ -15,10 +15,8 @@ public final class R {
     public static final class attr {
     }
     public static final class drawable {
-        public static final int btn_dropdown=0x7f020000;
+        public static final int carbon=0x7f020000;
         public static final int icon=0x7f020001;
-        public static final int slim_spinner_normal=0x7f020002;
-        public static final int slim_spinner_pressed=0x7f020003;
     }
     public static final class id {
         public static final int cmdEnvoyer=0x7f080010;

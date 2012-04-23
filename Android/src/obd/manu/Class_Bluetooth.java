@@ -162,8 +162,9 @@ public abstract class Class_Bluetooth {
 									byte rawdata[] = new byte[k];
 									for(int i=0;i<k;i++)
 										rawdata[i] = buffer[i];    									
-									data = data.concat(new String(rawdata));    									
+									data = data.concat(new String(rawdata));  									
 									if (data.endsWith(_receivedSplit)){
+										data.replace(_receivedSplit, "");
 										Message msg = MessageReceived.obtainMessage();
 										Bundle b = new Bundle();
 										b.putString("data", data);
