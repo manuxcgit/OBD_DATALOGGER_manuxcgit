@@ -21,7 +21,7 @@
 		android:key="pref_debug"></CheckBoxPreference>
 </PreferenceCategory>
 <PreferenceCategory
-    android:title="Fichier LOG">
+    android:title="Paramètres OBD">
     <ListPreference
 		android:summary="Pas d'intervale séléctionné"
 		android:title="Période des LOG"
@@ -29,12 +29,6 @@
 		android:entries="@array/listFreqLOG"
 		android:entryValues="@array/listTickLOG">
 		</ListPreference>
-	<CheckBoxPreference 
-	    android:summaryOn="Actif"
-	    android:summaryOff="Inactif"
-	    android:title="Enregistrement Video"
-	    android:key="pref_CBVideoActif"
-	    />
 	<ListPreference
 		android:summary="5"
 		android:title="Nbr de tests de connection"
@@ -42,5 +36,28 @@
 		android:entries="@array/listNbrTestConnection"
 		android:entryValues="@array/listNbrTestConnection">
 	</ListPreference>
+</PreferenceCategory>
+<PreferenceCategory 
+    android:title="Affichage GEAR">
+	<EditTextPreference 
+	    android:title="1er rapport  7.6"
+	    android:key="pref_gear1"
+	    android:defaultValue="90"/>  
+	<EditTextPreference 
+	    android:title="2eme rapport  13.5"
+	    android:key="pref_gear2"
+	    android:defaultValue="150"/>
+	<EditTextPreference 
+	    android:title="3eme rapport  18.7"
+	    android:key="pref_gear3"
+	    android:defaultValue="200"/>
+	<EditTextPreference 
+	    android:title="4eme rapport  24"
+	    android:key="pref_gear4"
+	    android:defaultValue="260"/>
+	<EditTextPreference 
+	    android:title="5eme rapport  29"
+	    android:key="pref_gear5"
+	    android:defaultValue="310"/> 
 </PreferenceCategory>    
 </PreferenceScreen>

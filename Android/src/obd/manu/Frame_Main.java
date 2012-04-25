@@ -40,7 +40,7 @@ public class Frame_Main extends Activity {
 	//#region declarations
 	boolean debug;
 	private EditText text_a_envoyer;
-	private long lastTime = 0;
+	private long LogStartTime;
 	Class_Bluetooth_OBD OBD = null;
 	Class_UserPreferences mPref ;
 	Context ctx;
@@ -49,18 +49,48 @@ public class Frame_Main extends Activity {
 	TextView tvOilTemp;
 	TextView tvWaterTemp;
 	TextView tvEngagedGear;
+	TextView tvLogInfo;
+	TextView tvChrono;
+	int[] gear = new int[5];
 	//#endregion
 	
 
     final Handler handlerMAJValues = new Handler() {
+    	long elapsed;
+    	int engagedGear;
+    	int rapport;
         @Override
 		public void handleMessage(Message msg) {
-        	msg.
-        	int[] values = OBD.getValues();// {log*5,log*10,log*100,log*10};//OBD.getValues(); //water, oil, rpm, speed;
+        	int[] values = OBD.getValues(); //water, oil, rpm, speed;
         	tvWaterTemp.setText(String.format("%3d", values[0]));
         	tvOilTemp.setText(String.format("%3d", values[1]));
         	tvRPM.setText(String.format("%5d", values[2]));
         	tvSpeed.setText(String.format("%4d", values[3]));
+        	elapsed = (System.currentTimeMillis() - LogStartTime)/1000;
+        	tvChrono.setText(String.format("%02d:%02d.%02d" , elapsed/3600, (elapsed/60) % 60,elapsed % 60));
+        	try {
+            	rapport = (values[3]*10000)/values[2];
+			} catch (Exception e) {
+				rapport = 0;
+			}
+        	engagedGear = 1;
+        	while (rapport>gear[engagedGear-1] & engagedGear<5){
+        		engagedGear++;
+        	}
+        	tvEngagedGear.setText(String.format(" %d", engagedGear));
+        	switch (msg.arg1) {
+			case Class_Bluetooth_OBD.TOMAINFRAME_LOG_UPDATE:
+				return;
+			case Class_Bluetooth_OBD.TOMAINFRAME_LOG_SIZE:
+				tvLogInfo.setText(String.format("taille LOG : %d ko", msg.arg2/1000));
+				break;
+			case Class_Bluetooth_OBD.TOMAINFRAME_LOG_STOPPED:
+				tvLogInfo.setText("LOG TERMINE");
+				break;
+			default:
+				break;
+			}
+
         	/*
         	 * engaged gear
         	 */
@@ -86,6 +116,8 @@ public class Frame_Main extends Activity {
 	        tvOilTemp = (TextView) findViewById(R.id.textViewHUILETEMPVALUE);
 	        tvWaterTemp = (TextView) findViewById(R.id.textViewEAUTEMPVALUE);
 	        tvEngagedGear = (TextView) findViewById(R.id.textViewGEARENGAGED);
+	        tvLogInfo = (TextView) findViewById(R.id.textViewLOGINFO);
+	        tvChrono = (TextView) findViewById(R.id.textViewCHRONO);
 	        //Class_Notifier.startStatusbarNotifications(ctx);
 	        Log.v("initialise OBD", "true" );
 	        if (OBD==null){
@@ -96,6 +128,19 @@ public class Frame_Main extends Activity {
 	 //#endregion       
 	        //evite extinction ecran
 	        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+	        
+	    	//d'apres calcul du net : 7.6  13.46  18.67  24  29.06  34  
+	        //charge la table des gears
+	        //int _gear;
+	        gear = new int[] {90,150,200,260,310};
+	    	for (int i = 0; i <5; i++) {
+	    		try {
+					gear[i] = Integer.parseInt(mPref.m_getParam(String.format("pref_gear%d", i+1)));
+					Log.i(String.format("pref_gear%d", i+1),String.format("%d", gear[i]));
+				} catch (Exception e) {
+					// TODO: handle exception
+				}				
+			}
     	}
         catch (Exception e){     
         	Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
@@ -202,6 +247,8 @@ public class Frame_Main extends Activity {
 	        	if (title.equals(getResources().getString(R.string.menuLancerLog))){
 	        		if (OBD.StartLog()) {
 	        			item.setTitle(string.menuArreterLog);
+	        			tvLogInfo.setText("LOG DEMARRE");
+	        			LogStartTime = System.currentTimeMillis();
 	        		}
 	        		else{
 	        			Toast.makeText(this, "Echec au lancement du LOG",Toast.LENGTH_SHORT).show();

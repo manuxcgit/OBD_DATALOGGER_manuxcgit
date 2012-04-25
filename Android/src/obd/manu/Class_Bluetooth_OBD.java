@@ -45,6 +45,10 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
     FileWriter writerOBD = null;
     AlertDialog.Builder alertbox;
 	//boolean loggerOBD = false;
+    
+    static final int TOMAINFRAME_LOG_UPDATE = 1;
+    static final int TOMAINFRAME_LOG_SIZE = 2;
+    static final int TOMAINFRAME_LOG_STOPPED = 3;
 	//#endregion
 
     public Class_Bluetooth_OBD (String ClassName, Context context, Handler toMainFrame, String receivedSplit)	{
@@ -56,7 +60,10 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 				intervalleLOG = Integer.parseInt(mPref.m_getParam("pref_periodeLOG"));
 				nbrLoopTest = Integer.parseInt(mPref.m_getParam("pref_nbrtestconnection"));
 			} catch (Exception e) {	}
-    		if (debug){Log.v("OBD","Debug on");}
+    		if (debug){
+    			Log.v("OBD","Debug on");
+    			nbrLoopTest = 1;
+    		}
     		this.m_connect();
     	}
     
@@ -77,6 +84,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	    	writerOBD.close();
     	}
     	catch (IOException e){}
+    	ToMainFrame.sendEmptyMessage(TOMAINFRAME_LOG_STOPPED); 
     }
     
     public int[] getValues(){
@@ -371,7 +379,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 			public void run() {
 				 try {
 					 Looper.prepare();
-					 if (!IsInitialised){	
+					 if (!IsInitialised & !debug){	
 						 	alertbox = new AlertDialog.Builder(_context);
 							alertbox.setTitle("LOG Impossible");
 				            alertbox.setMessage("OBD non initialisé");
@@ -394,6 +402,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 					            String.format("%04d%02d%02d_%02d%02d%02d", now.year,now.month+1,now.monthDay,now.hour,now.minute,now.second) +".txt");
 					fileOBD.createNewFile();
 					writerOBD = new FileWriter(fileOBD,false);
+					writerOBD.write("RPM,Speed,OilTemp,WaterTemp\r\n");
 					start_time_LOG = System.currentTimeMillis();
 					 //#endregion
 					 timerLOG = new Timer();
@@ -401,7 +410,9 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 					 timerLOG.scheduleAtFixedRate(new TimerTask() {					
 						@Override
 						public void run() {
+							Message info =new Message();
 							if (!LOGBusy){
+								info.arg1=TOMAINFRAME_LOG_UPDATE;
 								LOGBusy=true;
 								m_sendData("010C\r", 1000);
 								m_sendData("010D\r", 1000);
@@ -409,10 +420,15 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 									m_sendData("0105\r", 1000);
 									m_sendData("015C\r", 1000);
 									LogOil = 0;
+									info.arg1 = TOMAINFRAME_LOG_SIZE;
+									info.arg2 = (int)fileOBD.length();
+									ToMainFrame.sendMessage(info);
 								}
 								LogOil++;
 								WriteLOG();
-								ToMainFrame.sendEmptyMessage(0);
+								if (info.arg1==TOMAINFRAME_LOG_UPDATE){
+									ToMainFrame.sendEmptyMessage(TOMAINFRAME_LOG_UPDATE);
+								}
 								LOGBusy=false;
 							}
 						}
@@ -429,6 +445,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 		 try{
 			 String Result = String.format("%4d,%3d,%3d,%3d,%5d", RPM,Speed,OilTemp,WaterTemp,(System.currentTimeMillis()-start_time_LOG)/1000);
 			 writerOBD.write(Result+"\r\n");
+			 writerOBD.flush();
 		 }
 		 catch (IOException e){}           
 	 }
