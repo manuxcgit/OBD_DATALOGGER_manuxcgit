@@ -82,7 +82,7 @@ public abstract class Class_Bluetooth {
     	return result;
     }
 	
-	public void m_sendData(String data){
+	/*public void m_sendData(String data){
 		try {
 			sendStream.write(data.getBytes());
 	        sendStream.flush();
@@ -90,10 +90,10 @@ public abstract class Class_Bluetooth {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
     
     protected String m_sendData(String data, int tempo) {
-		if (IsBusy) {return "IsBusy";}
+		if (IsBusy) {return "IsBusy, nothing sent";}
 		if (sendStream==null){return "OBD non connecté";}
 		try {
 			sendStream.write(data.getBytes());
@@ -107,9 +107,9 @@ public abstract class Class_Bluetooth {
 		} catch (Exception e) {
 			return "m_sendData EXCEPTION";
 		}
-		if (IsBusy){return "IsBusy";}
+		if (IsBusy){return "IsBusy AFTER sent";}
 		else{
-			return receivedData.substring(data.length());
+			return receivedData;
 		}
 	}
 
@@ -191,139 +191,6 @@ public abstract class Class_Bluetooth {
 					m_traiteMessage(msg);
 				}
 		};
-		/*			}String received = msg.getData().getString("data");
-					if (debug){Toast.makeText(_context, received , Toast.LENGTH_SHORT).show();}
-					if (received.startsWith("01")){
-						try {
-							String value_string = received.substring(8, received.length()-2);
-							int value ;
-							if (debug){Toast.makeText(_context, value_string , Toast.LENGTH_LONG).show();}
-							if (received.contains("NO DATA")){
-								value=-1;
-							} 
-							else {
-								if (received.contains("CAN ERROR") | received.contains("NOT FOUND")){
-									value=-2;							
-								}
-								else{
-									value = m_getValue(value_string);
-								}							
-							}					
-							int type_donnee = Integer.parseInt(received.substring(2, 4), 16);
-							switch (type_donnee) {
-							case 12:
-								//rpm
-								RPM = value;
-								break;							
-							case 13:
-								//vitesse
-								Speed = value;
-								break;
-							case 05:
-								//temp eau
-								WaterTemp = value - 40;
-								break;
-							case 92:
-								//temp huile
-								OilTemp = value - 40;
-								break;
-
-							default:
-								break;
-							}
-						} catch (Exception e) {
-							// TODO: handle exception
-						}
-					}
-					if (received.contains("ELM327")){
-						protocole_name = "ELM327";
-						return;
-					}
-					if (received.startsWith("ATDP")){
-						protocole_name = received.substring(4,received.length()-2);
-						return;
-						}
-				}
-					/*
-					//#region rpm
-					if (received.startsWith("010C")){
-						if (received.length()!=13)
-						{ RPM = -1; return;}
-						try {
-							RPM = ((Integer.parseInt(received.substring(8, 10), 16) * 256) + 
-									Integer.parseInt(received.substring(10, 12), 16)) / 4;
-							return;
-						} catch (Exception e) {
-							// TODO: handle exception
-						}
-					}
-					//#endregion
-					//#region vitesse
-					if (received.startsWith("010D")){
-						if (received.length()!=11)
-						{ Speed = -1; return;}
-						try {
-							Speed = Integer.parseInt(received.substring(8, 10), 16);
-							return;
-						} catch (Exception e) {
-							// TODO: handle exception
-						}
-					}
-					//#endregion
-					//#region temp eau
-					if (received.startsWith("0105")){
-						if (received.length()!=11)
-						{ 
-							WaterTemp = -1;
-							if (received.endsWith("NO DATA>")){WaterTemp=-2;}
-							return;}
-						try {
-							WaterTemp = Integer.parseInt(received.substring(8, 10), 16) - 40;
-							return;
-						} catch (Exception e) {
-							// TODO: handle exception
-						}
-					}
-						
-					//#endregion
-					//#region temp huile
-					if (received.startsWith("015C")){
-						if (received.length()!=11)
-						{ OilTemp = -1; return;}
-						try {
-							OilTemp = Integer.parseInt(received.substring(8, 10), 16) - 40;
-							return;
-						} catch (Exception e) {
-							// TODO: handle exception
-						}
-					}
-					//#endregion
-					if (received.contains("ELM327 v1.5")){
-						//isInitialised=true;
-						protocole_name="ELM327";
-						return;
-						}
-					if (received.startsWith("ATDP")){
-						protocole_name = received.substring(4,received.length()-2);
-						return;
-						}
-					} */
-
-		/*		private int m_getValue(String _value) {
-					try {
-						if (_value.length()==2){
-							return Integer.parseInt(_value, 16);
-						} else
-						{
-							return ((Integer.parseInt(_value.substring(0, 2), 16) * 256) + 
-									Integer.parseInt(_value.substring(2, 4), 16)) / 4;
-						}
-						
-					} catch (Exception e) {
-						// TODO: handle exception
-					}
-					return 0;
-				}
-			}; */
-		//#endregion
+		
+	//#endregion
 }

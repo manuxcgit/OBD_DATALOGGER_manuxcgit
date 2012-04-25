@@ -30,7 +30,8 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	private int WaterTemp;
 	private int OilTemp;
 	private int etatThreadLog = 0; //0 si pas de thread, 1 si ok, 2 si erreur
-	private long intervalleLOG;
+	private int nbrLoopTest = 5;
+	private long intervalleLOG = 1000;
 	private long start_time_LOG;
 	private boolean debug = false;
 	private String protocole_name = "";
@@ -38,6 +39,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	LOGThread LogThread;
 	boolean wait_for_alert = false;
 	boolean quitter = false;
+	boolean relancerTest = false;
 	Timer timerLOG ;
     File fileOBD = null;
     FileWriter writerOBD = null;
@@ -52,9 +54,8 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
     		debug = (mPref.m_getParam("pref_debug")=="true");
     		try {
 				intervalleLOG = Integer.parseInt(mPref.m_getParam("pref_periodeLOG"));
-			} catch (Exception e) {
-				intervalleLOG = 1000;
-			}
+				nbrLoopTest = Integer.parseInt(mPref.m_getParam("pref_nbrtestconnection"));
+			} catch (Exception e) {	}
     		if (debug){Log.v("OBD","Debug on");}
     		this.m_connect();
     	}
@@ -164,74 +165,84 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 			}	
 			pDL.dismiss();
 			Log.v("pDL","dismiss");
-			//Looper.loop();
 		}
 	});
     
 	Thread  m_initialise = new Thread ( new Runnable() {
-		public void run() {
-			
+		public void run() {			
 			Looper.prepare();
 			IsInitialised = false;
 			quitter = false;
 			WaterTemp = -2;
 			String test;
 			while (!IsInitialised & !quitter) {
-				test = m_sendData("0105\r", 1000);
-	            Log.v("0105",test);
-				if (WaterTemp<-1){
+				for (int i = 0; i < nbrLoopTest; i++) {
+					m_incrementpDL(String.format("Tentative d'initialisation %d", i+1));
+					test = m_sendData("0105\r", 2000);
+					try {
+						Thread.sleep(3000);
+					} catch (Exception e) {}
+		            Log.v("0105",test);
+		            if (WaterTemp>=0){
+		            	IsInitialised = true;
+		            	Toast.makeText(_context, "Initialisation OK", Toast.LENGTH_SHORT).show();
+		            	break;
+		            }
+				}
+				if (!IsInitialised){
+					//#region cherche Protocole
+					relancerTest = false;
 					wait_for_alert = true;
 					alertbox = new AlertDialog.Builder(_context);
-					alertbox.setTitle("Problème de Protocole");
-		            alertbox.setMessage("Voulez vous réessayer ?");
+					alertbox.setTitle("Problème d'initialisation");
+		            alertbox.setMessage("Voulez vous faire une recherche de protocole ?");
 		            alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
 		                public void onClick(DialogInterface arg0, int arg1) {
 		                	try	{
-		                		String test = m_sendData("0105\r", 1000);
-		        	            Log.v("0105",test);
-		                		if (WaterTemp<-1){
-		                			test = m_sendData("ATSP0\r", 1000);
+		                			String test = m_sendData("ATSP0\r", 2000);
 			        	            Log.v("ATSP0",test);
-		                		}
 		                	}
 		                	catch (Exception e) {
 								// TODO: handle exception
 							}
+		                	relancerTest = true;
 		                	wait_for_alert = false;
 		                }
 		            });
 		            alertbox.setNegativeButton("Non", new DialogInterface.OnClickListener() {           
 		                public void onClick(DialogInterface arg0, int arg1) {
 		                	wait_for_alert = false;
-		                	quitter=true;
+		                	//quitter=true;
 		                }
 		            });
 		            alertBoxShow();
+		            while (wait_for_alert){}
+		            //#endregion
+		            //#region Question reesayer
+		            if (!relancerTest){
+						wait_for_alert = true;
+						alertbox = new AlertDialog.Builder(_context);
+						alertbox.setTitle("PAS DE REPONSE DE L OBD");
+			            alertbox.setMessage("Voulez vous réessayer ?");
+			            alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
+			                public void onClick(DialogInterface arg0, int arg1) {
+			                		wait_for_alert = false;                	
+			                }
+			            });
+			            alertbox.setNegativeButton("Non", new DialogInterface.OnClickListener() {           
+			                public void onClick(DialogInterface arg0, int arg1) {
+			                	wait_for_alert = false;
+			                	quitter = true;
+			                }
+			            });
+			            alertBoxShow();
+			            while (wait_for_alert){}
+		            }
+		            //#endregion
 				}
-				if (WaterTemp==-1){
-					wait_for_alert = true;
-					alertbox = new AlertDialog.Builder(_context);
-					alertbox.setTitle("Probleme de TEST");
-		            alertbox.setMessage("Voulez vous réessayer avec moteur démarré ?");
-		            alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
-		                public void onClick(DialogInterface arg0, int arg1) {
-		                		wait_for_alert = false;                	
-		                }
-		            });
-		            alertbox.setNegativeButton("Non", new DialogInterface.OnClickListener() {           
-		                public void onClick(DialogInterface arg0, int arg1) {
-		                	wait_for_alert = false;
-		                	quitter = true;
-		                }
-		            });
-		            alertBoxShow();
-				}
-	            while (wait_for_alert){}
-	            if (quitter){protocole_name =  "ECHEC D'INITIALISATION !";}
-				if (WaterTemp>0)
-				{IsInitialised=true;
-				Toast.makeText(_context, "Initialisation OK", Toast.LENGTH_SHORT).show();
-				}			
+	            if (quitter){
+	            	protocole_name =  "ECHEC D'INITIALISATION !";
+	            }			
 			}
 			Log.i("initialisation", protocole_name);
 			if (quitter) {return;}
@@ -239,69 +250,16 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
             Log.v("ATDP",test);
 		}
 	});
-	/*{
-		while (!IsInitialised) {
-			m_sendData("0105\r", 1000);
-			if (WaterTemp<-1){
-				wait_for_alert = true;
-				AlertDialog.Builder alertbox = new AlertDialog.Builder(_context);
-				alertbox.setTitle("Probleme d'initialisation");
-	            alertbox.setMessage("Voulez vous réessayer ?");
-	            alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
-	                public void onClick(DialogInterface arg0, int arg1) {
-	                	try	{
-	                		m_sendData("0105\r", 1000);
-	                		if (WaterTemp<-1){
-	                			m_sendData("ATSP0", 1000);
-	                		}
-	                	}
-	                	catch (Exception e) {
-							// TODO: handle exception
-						}
-	                	wait_for_alert = false;
-	                }
-	            });
-	            alertbox.setNegativeButton("Non", new DialogInterface.OnClickListener() {           
-	                public void onClick(DialogInterface arg0, int arg1) {
-	                	wait_for_alert = false;
-	                	quitter=true;
-	                }
-	            });
-	            alertbox.show();  
-	            while (wait_for_alert){}
-	            if (quitter) {return "ECHEC D'INITIALISATION !";}
-			}
-			if (WaterTemp==-1){
-				wait_for_alert = true;
-				AlertDialog.Builder alertbox = new AlertDialog.Builder(_context);
-				alertbox.setTitle("Probleme de TEST");
-	            alertbox.setMessage("Voulez vous réessayer avec moteur démarré ?");
-	            alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
-	                public void onClick(DialogInterface arg0, int arg1) {
-	                		wait_for_alert = false;                	
-	                }
-	            });
-	            alertbox.setNegativeButton("Non", new DialogInterface.OnClickListener() {           
-	                public void onClick(DialogInterface arg0, int arg1) {
-	                	wait_for_alert = false;
-	                	quitter = true;
-	                }
-	            });
-	            alertbox.show(); 
-	            while (wait_for_alert){}
-	            if (quitter){return "ECHEC D'INITIALISATION !";}
-			}
-			if (WaterTemp>0){IsInitialised=true;}			
-		}
-		m_sendData("ATDP\r", 1000);
-		return protocole_name;
-	}*/
+
  	
 	Handler pDLincrement = new Handler() {
 	        @Override
 			public void handleMessage(Message msg) {
-	        	pDL.setMessage(msg.getData().getString("Text"));
-	            pDL.incrementProgressBy(1);
+	        	String message = msg.getData().getString("Text");
+	        	pDL.setMessage(message);
+	        	if (!message.startsWith("Tentative")){
+	        		pDL.incrementProgressBy(1);
+	        	}
 	        }
 	    };
   	    
@@ -326,53 +284,15 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	//#endregion
 	
 	//#region reception message
-/*	protected class ReceiverThread extends Thread{
-			
-		String data = "";
-	
-		 protected ReceiverThread(){}
-		 
-		 public void run() {
-				while(true) {
-					try {
-						if(receiveStream.available() > 0) {
-							byte buffer[] = new byte[100];
-							int k = receiveStream.read(buffer, 0, 100);    								
-							if(k > 0) {
-								byte rawdata[] = new byte[k];
-								for(int i=0;i<k;i++)
-									rawdata[i] = buffer[i];    									
-								data = data.concat(new String(rawdata));    									
-								if (data.endsWith(">")){
-									Message msg = MessageReceived.obtainMessage();
-									Bundle b = new Bundle();
-									b.putString("data", data);
-					                msg.setData(b);
-					                MessageReceived.sendMessage(msg);
-					                data = "";
-					                IsBusy = false;
-								}
-							}
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-	 }
-	
-	Handler MessageReceived = new Handler(){
-			public void handleMessage(Message msg){
-			*/
 	@Override
 	protected  void m_traiteMessage(Message msg){
 		String received = msg.getData().getString("data");
-		if (debug){Toast.makeText(_context, received , Toast.LENGTH_SHORT).show();}
+		if (debug){Toast.makeText(_context, "Received = " + received , Toast.LENGTH_SHORT).show();}
 		if (received.startsWith("01")){
 			try {
-				String value_string = received.substring(8, received.length()-2);
+				String value_string = received.substring(8);// car  en theorie ">" eliminé, received.length()-1);
 				int value ;
-				if (debug){Toast.makeText(_context, value_string , Toast.LENGTH_LONG).show();}
+				if (debug){Toast.makeText(_context, "Value = " + value_string , Toast.LENGTH_LONG).show();}
 				if (received.contains("NO DATA")){
 					value=39;//-2 au final
 				} 
@@ -418,74 +338,10 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 			return;
 		}
 		if (received.startsWith("ATDP")){
-			protocole_name = received.substring(4,received.length()-2);
+			protocole_name = received.substring(4);//,received.length()-1);
 			return;
 			}
 	};
-		/*
-		//#region rpm
-		if (received.startsWith("010C")){
-			if (received.length()!=13)
-			{ RPM = -1; return;}
-			try {
-				RPM = ((Integer.parseInt(received.substring(8, 10), 16) * 256) + 
-						Integer.parseInt(received.substring(10, 12), 16)) / 4;
-				return;
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-		}
-		//#endregion
-		//#region vitesse
-		if (received.startsWith("010D")){
-			if (received.length()!=11)
-			{ Speed = -1; return;}
-			try {
-				Speed = Integer.parseInt(received.substring(8, 10), 16);
-				return;
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-		}
-		//#endregion
-		//#region temp eau
-		if (received.startsWith("0105")){
-			if (received.length()!=11)
-			{ 
-				WaterTemp = -1;
-				if (received.endsWith("NO DATA>")){WaterTemp=-2;}
-				return;}
-			try {
-				WaterTemp = Integer.parseInt(received.substring(8, 10), 16) - 40;
-				return;
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-		}
-			
-		//#endregion
-		//#region temp huile
-		if (received.startsWith("015C")){
-			if (received.length()!=11)
-			{ OilTemp = -1; return;}
-			try {
-				OilTemp = Integer.parseInt(received.substring(8, 10), 16) - 40;
-				return;
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-		}
-		//#endregion
-		if (received.contains("ELM327 v1.5")){
-			//isInitialised=true;
-			protocole_name="ELM327";
-			return;
-			}
-		if (received.startsWith("ATDP")){
-			protocole_name = received.substring(4,received.length()-2);
-			return;
-			}
-		} */
 
 	private int m_getValue(String _value) {
 		try {
@@ -569,7 +425,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 			 }			 
 	}
 	
-	 public void WriteLOG() {
+	public void WriteLOG() {
 		 try{
 			 String Result = String.format("%4d,%3d,%3d,%3d,%5d", RPM,Speed,OilTemp,WaterTemp,(System.currentTimeMillis()-start_time_LOG)/1000);
 			 writerOBD.write(Result+"\r\n");

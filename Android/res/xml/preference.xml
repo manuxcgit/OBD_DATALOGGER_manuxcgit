@@ -36,9 +36,11 @@
 	    android:key="pref_CBVideoActif"
 	    />
 	<ListPreference
-		android:summary="Pas de format séléctionné"
-		android:title="Format Vidéo"
-		android:key="pref_videosize">
+		android:summary="5"
+		android:title="Nbr de tests de connection"
+		android:key="pref_nbrtestconnection"
+		android:entries="@array/listNbrTestConnection"
+		android:entryValues="@array/listNbrTestConnection">
 	</ListPreference>
 </PreferenceCategory>    
 </PreferenceScreen>

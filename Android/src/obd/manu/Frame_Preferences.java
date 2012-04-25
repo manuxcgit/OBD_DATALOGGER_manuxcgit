@@ -67,6 +67,7 @@ public class Frame_Preferences extends PreferenceActivity implements OnSharedPre
 		//
 	}
     // #endregion
+
     
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     prefs.registerOnSharedPreferenceChangeListener(Frame_Preferences.this);

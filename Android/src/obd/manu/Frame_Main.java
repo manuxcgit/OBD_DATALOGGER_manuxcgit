@@ -51,17 +51,16 @@ public class Frame_Main extends Activity {
 	TextView tvEngagedGear;
 	//#endregion
 	
-	int log;
 
     final Handler handlerMAJValues = new Handler() {
         @Override
 		public void handleMessage(Message msg) {
-        	int[] values = {log*5,log*10,log*100,log*10};//OBD.getValues(); //water, oil, rpm, speed
+        	msg.
+        	int[] values = OBD.getValues();// {log*5,log*10,log*100,log*10};//OBD.getValues(); //water, oil, rpm, speed;
         	tvWaterTemp.setText(String.format("%3d", values[0]));
         	tvOilTemp.setText(String.format("%3d", values[1]));
         	tvRPM.setText(String.format("%5d", values[2]));
         	tvSpeed.setText(String.format("%4d", values[3]));
-        	log++;
         	/*
         	 * engaged gear
         	 */
@@ -148,9 +147,9 @@ public class Frame_Main extends Activity {
 					return;
 				}
 				try{
-					String test = OBD.m_sendData(texteSaisi+"\r",1000);					
+					String test = OBD.m_sendData(texteSaisi+"\r",2000);					
     	            Log.v(texteSaisi,test);
-    	            Toast.makeText(this, test,Toast.LENGTH_SHORT).show();
+    	            Toast.makeText(this,"Retour cmdEnvoyer = " + test,Toast.LENGTH_SHORT).show();
 				}
 				catch (Exception e) {Toast.makeText(this, "OBD non initialisé",Toast.LENGTH_SHORT).show();}
 				break;
