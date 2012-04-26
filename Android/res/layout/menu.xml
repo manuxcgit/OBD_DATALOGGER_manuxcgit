@@ -11,5 +11,8 @@
 
 <item android:id="@+id/menuLancerLog"
     android:title="@string/menuLancerLog" />
+
+<item android:id="@+id/menuVoirLog"
+    android:title="@string/menuVoirLog" />
 </menu>
     

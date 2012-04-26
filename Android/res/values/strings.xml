@@ -10,4 +10,5 @@
     <string name="textViewEAUTEMP">Eau ° :</string>
     <string name="menuLancerLog">Lancer LOG</string>
     <string name="menuArreterLog">Arreter LOG</string>
+    <string name="menuVoirLog">Voir LOGS</string>
 </resources>

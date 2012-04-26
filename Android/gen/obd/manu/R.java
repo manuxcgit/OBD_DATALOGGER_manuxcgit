@@ -20,38 +20,45 @@ public final class R {
         public static final int icon=0x7f020001;
     }
     public static final class id {
-        public static final int cmdEnvoyer=0x7f080010;
-        public static final int cmd_startcamerapreview=0x7f080014;
-        public static final int cmd_stopcamerapreview=0x7f080015;
-        public static final int cmd_testvideo=0x7f080016;
-        public static final int editTextAEnvoyer=0x7f08000f;
-        public static final int linearLayout1=0x7f080000;
-        public static final int linearLayout2=0x7f080005;
-        public static final int linearLayout3=0x7f08000a;
-        public static final int linearLayoutDebug=0x7f08000e;
-        public static final int menuLancerLog=0x7f080013;
-        public static final int menuOption=0x7f080011;
-        public static final int menuQuitter=0x7f080012;
-        public static final int mybutton=0x7f080019;
-        public static final int surfaceview=0x7f080017;
-        public static final int textViewCHRONO=0x7f08000c;
-        public static final int textViewEAUTEMP=0x7f080008;
-        public static final int textViewEAUTEMPVALUE=0x7f080009;
-        public static final int textViewGEARENGAGED=0x7f08000b;
-        public static final int textViewHUILETEMP=0x7f080006;
-        public static final int textViewHUILETEMPVALUE=0x7f080007;
-        public static final int textViewLOGINFO=0x7f08000d;
-        public static final int textViewRPM=0x7f080001;
-        public static final int textViewRPMVALUE=0x7f080002;
-        public static final int textViewVITESSE=0x7f080003;
-        public static final int textViewVITESSEVALUE=0x7f080004;
-        public static final int videoview=0x7f080018;
+        public static final int cmdChoixFichierLog=0x7f080002;
+        public static final int cmdEnvoyer=0x7f080015;
+        public static final int cmd_startcamerapreview=0x7f08001a;
+        public static final int cmd_stopcamerapreview=0x7f08001b;
+        public static final int cmd_testvideo=0x7f08001c;
+        public static final int editTextAEnvoyer=0x7f080014;
+        public static final int imageViewFichierLog=0x7f080004;
+        public static final int linearLayout1=0x7f080005;
+        public static final int linearLayout2=0x7f08000a;
+        public static final int linearLayout3=0x7f08000f;
+        public static final int linearLayoutDebug=0x7f080013;
+        public static final int menuLancerLog=0x7f080018;
+        public static final int menuOption=0x7f080016;
+        public static final int menuQuitter=0x7f080017;
+        public static final int menuVoirLog=0x7f080019;
+        public static final int mybutton=0x7f08001f;
+        public static final int seekBarFichierLog=0x7f080003;
+        public static final int spinnerFichierLog=0x7f080001;
+        public static final int surfaceview=0x7f08001d;
+        public static final int textViewCHRONO=0x7f080011;
+        public static final int textViewEAUTEMP=0x7f08000d;
+        public static final int textViewEAUTEMPVALUE=0x7f08000e;
+        public static final int textViewFichierLog=0x7f080000;
+        public static final int textViewGEARENGAGED=0x7f080010;
+        public static final int textViewHUILETEMP=0x7f08000b;
+        public static final int textViewHUILETEMPVALUE=0x7f08000c;
+        public static final int textViewLOGINFO=0x7f080012;
+        public static final int textViewRPM=0x7f080006;
+        public static final int textViewRPMVALUE=0x7f080007;
+        public static final int textViewVITESSE=0x7f080008;
+        public static final int textViewVITESSEVALUE=0x7f080009;
+        public static final int videoview=0x7f08001e;
     }
     public static final class layout {
-        public static final int main=0x7f030000;
-        public static final int menu=0x7f030001;
-        public static final int preview_video=0x7f030002;
-        public static final int recording=0x7f030003;
+        public static final int logviewer=0x7f030000;
+        public static final int main=0x7f030001;
+        public static final int menu=0x7f030002;
+        public static final int preview_video=0x7f030003;
+        public static final int recording=0x7f030004;
     }
     public static final class string {
         public static final int app_name=0x7f060001;
@@ -60,6 +67,7 @@ public final class R {
         public static final int hello=0x7f060000;
         public static final int menuArreterLog=0x7f060009;
         public static final int menuLancerLog=0x7f060008;
+        public static final int menuVoirLog=0x7f06000a;
         public static final int textViewEAUTEMP=0x7f060007;
         public static final int textViewHUILETEMP=0x7f060006;
         public static final int textViewRPM=0x7f060004;

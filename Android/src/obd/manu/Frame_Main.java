@@ -130,7 +130,7 @@ public class Frame_Main extends Activity {
 	        //charge la table des gears
 	        //int _gear;
 	        gear = new int[] {90,150,200,260,310};
-	    	for (int i = 0; i <5; i++) {
+	    	for (int i = 0; i <6; i++) {
 	    		try {
 					gear[i] = Integer.parseInt(mPref.m_getParam(String.format("pref_gear%d", i+1)));
 					Log.i(String.format("pref_gear%d", i+1),String.format("%d", gear[i]));
@@ -237,6 +237,7 @@ public class Frame_Main extends Activity {
         	return true;
         	// #endregion
         case R.id.menuLancerLog:
+        	//#region LancerLOG
         	try{
 	        	String title = item.getTitle().toString();
 	        	if (title.equals(getResources().getString(R.string.menuLancerLog))){
@@ -258,12 +259,13 @@ public class Frame_Main extends Activity {
         		Toast.makeText(this, "Pas d'OBD trouvé",Toast.LENGTH_SHORT).show();
 			}
         	return true;
-      /*  case R.id.menuPreviewVideo:
-        	// #region Preview Video
-        	Intent intent1 = new Intent(this, Frame_Recorder.class);
+        	//#endregion      
+        case R.id.menuVoirLog:
+        	//#region Voir LOG
+        	Intent intent1 = new Intent(this, Frame_LogView.class);
         	startActivity(intent1);
         	return true;
-        	// #endregion  */
+        	//#endregion
      
       }
     		 

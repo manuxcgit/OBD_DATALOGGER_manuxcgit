@@ -21,9 +21,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".Menu_Options" android:screenOrientation="landscape"></activity>
-        <activity android:name=".Frame_Preferences"></activity>
-        <activity android:name="Frame_PreviewCamera"></activity>
-        <activity android:name="Frame_Recorder"></activity>
+        <activity android:name=".Frame_Preferences" android:screenOrientation="landscape"></activity>
+        <activity android:name=".Frame_LogView" android:screenOrientation="landscape"></activity>
     </application>
     
 </manifest>
