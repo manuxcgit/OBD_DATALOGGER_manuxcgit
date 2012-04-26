@@ -49,6 +49,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
     static final int TOMAINFRAME_LOG_UPDATE = 1;
     static final int TOMAINFRAME_LOG_SIZE = 2;
     static final int TOMAINFRAME_LOG_STOPPED = 3;
+    static final int TOMAINFRAME_LOG_READY = 4;
 	//#endregion
 
     public Class_Bluetooth_OBD (String ClassName, Context context, Handler toMainFrame, String receivedSplit)	{
@@ -72,19 +73,26 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 		etatThreadLog = 0;
     	LogThread.start();
     	while (etatThreadLog==0){ new Runnable() {			
-			public void run() {	
+			public void run() {
+		    	//pour lancer threadLOG et voir si tout se passe bien
 			}
 		};}
-    	return (etatThreadLog==1);//LogThread.isAlive();
+    	return (etatThreadLog==1);
     }
     
     public void StopLog(){
     	try{
 	    	timerLOG.cancel();
-	    	writerOBD.close();
+	    	writerOBD.close();	
+	    	Thread.sleep(1000);
     	}
-    	catch (IOException e){}
-    	ToMainFrame.sendEmptyMessage(TOMAINFRAME_LOG_STOPPED); 
+    	catch (IOException e){
+    		Log.e("StopLog", "erreur fichier");
+    	}
+    	catch (Exception e){}
+    	Message info = new Message();
+    	info.arg1 = TOMAINFRAME_LOG_STOPPED;
+    	ToMainFrame.sendMessage(info); 
     }
     
     public int[] getValues(){
@@ -157,10 +165,12 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 				while (!IsInitialised & !quitter){}		
 				Thread.sleep(200);//pour recuperer protocole_name
 				m_incrementpDL(protocole_name);
-				//Looper.loop();
 				Thread.sleep(2000);
 				if (IsInitialised){
 					m_incrementpDL("INITIALISATION REUSSIE !!");
+		    		Message info = new Message();
+		        	info.arg1 = TOMAINFRAME_LOG_READY;
+		        	ToMainFrame.sendMessage(info);
 					Thread.sleep(2000);
 				}
 			}
@@ -186,9 +196,11 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 			while (!IsInitialised & !quitter) {
 				for (int i = 0; i < nbrLoopTest; i++) {
 					m_incrementpDL(String.format("Tentative d'initialisation %d", i+1));
-					test = m_sendData("0105\r", 2000);
+					test = m_sendData("0105\r", 4000);
 					try {
-						Thread.sleep(3000);
+						if (!IsConnected){
+							Thread.sleep(3000);
+						}
 					} catch (Exception e) {}
 		            Log.v("0105",test);
 		            if (WaterTemp>=0){
@@ -258,7 +270,6 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
             Log.v("ATDP",test);
 		}
 	});
-
  	
 	Handler pDLincrement = new Handler() {
 	        @Override
@@ -295,26 +306,26 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	@Override
 	protected  void m_traiteMessage(Message msg){
 		String received = msg.getData().getString("data");
-		if (debug){Toast.makeText(_context, "Received = " + received , Toast.LENGTH_SHORT).show();}
+		if (debug){Toast.makeText(_context, "Received = '" + received + "'", Toast.LENGTH_SHORT).show();}
 		if (received.startsWith("01")){
 			try {
-				String value_string = received.substring(8);// car  en theorie ">" eliminé, received.length()-1);
+				String value_string = received.substring(9);// car  en theorie ">" eliminé, received.length()-1);
 				int value ;
-				if (debug){Toast.makeText(_context, "Value = " + value_string , Toast.LENGTH_LONG).show();}
+				if (debug){Toast.makeText(_context, "Value string = '" + value_string + "'", Toast.LENGTH_LONG).show();}
 				if (received.contains("NO DATA")){
-					value=39;//-2 au final
+					value=39;//-1 au final
 				} 
 				else {
 					if (received.contains("CAN ERROR") | received.contains("NOT FOUND") | received.contains("UNABLE TO CONNECT")){
-						value=38;// -1 au final							
+						value=38;// -2 au final							
 					}
 					else{
 						value = m_getValue(value_string);
 					}							
 				}					
 				int type_donnee = Integer.parseInt(received.substring(2, 4), 16);
-				//if (debug)
-				//{Toast.makeText(_context, String.format("%d", type_donnee), Toast.LENGTH_SHORT).show();}
+				if (debug)
+				{Toast.makeText(_context, String.format("value = %d ... type donnée = %d", value , type_donnee), Toast.LENGTH_SHORT).show();}
 				switch (type_donnee) {
 				case 12:
 					//rpm
@@ -422,13 +433,10 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 									LogOil = 0;
 									info.arg1 = TOMAINFRAME_LOG_SIZE;
 									info.arg2 = (int)fileOBD.length();
-									ToMainFrame.sendMessage(info);
 								}
 								LogOil++;
 								WriteLOG();
-								if (info.arg1==TOMAINFRAME_LOG_UPDATE){
-									ToMainFrame.sendEmptyMessage(TOMAINFRAME_LOG_UPDATE);
-								}
+								ToMainFrame.sendMessage(info);
 								LOGBusy=false;
 							}
 						}

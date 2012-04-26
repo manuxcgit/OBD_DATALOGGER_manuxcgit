@@ -54,7 +54,6 @@ public class Frame_Main extends Activity {
 	int[] gear = new int[5];
 	//#endregion
 	
-
     final Handler handlerMAJValues = new Handler() {
     	long elapsed;
     	int engagedGear;
@@ -87,16 +86,14 @@ public class Frame_Main extends Activity {
 			case Class_Bluetooth_OBD.TOMAINFRAME_LOG_STOPPED:
 				tvLogInfo.setText("LOG TERMINE");
 				break;
+			case Class_Bluetooth_OBD.TOMAINFRAME_LOG_READY:
+				tvLogInfo.setText("PRET POUR LOGGER");
+				break;
 			default:
 				break;
 			}
-
-        	/*
-        	 * engaged gear
-        	 */
        }
     };
-
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -147,8 +144,6 @@ public class Frame_Main extends Activity {
         }
     }
     
-
-
 	private void m_adjustLinearLayouts(boolean debug) {
 		try {
 			LinearLayout lL;
@@ -194,7 +189,7 @@ public class Frame_Main extends Activity {
 				try{
 					String test = OBD.m_sendData(texteSaisi+"\r",2000);					
     	            Log.v(texteSaisi,test);
-    	            Toast.makeText(this,"Retour cmdEnvoyer = " + test,Toast.LENGTH_SHORT).show();
+    	            Toast.makeText(this,"Retour cmdEnvoyer = '" + test  +"'",Toast.LENGTH_SHORT).show();
 				}
 				catch (Exception e) {Toast.makeText(this, "OBD non initialisé",Toast.LENGTH_SHORT).show();}
 				break;

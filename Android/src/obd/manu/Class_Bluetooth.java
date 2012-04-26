@@ -40,13 +40,13 @@ public abstract class Class_Bluetooth {
 	Context _context;
 	// #endregion
 
-	public Class_Bluetooth(String NomBT, Context context, Handler toMainFrame, String receivedSplit ){// Handler hstatus, Handler h, Context context) {	
-		//handler = null;// hstatus;		
+	public Class_Bluetooth(String NomBT, Context context, Handler toMainFrame, String receivedSplit ){
 		BT_Name = NomBT;
 		_context = context;
 		ToMainFrame = toMainFrame;
 		_receivedSplit = receivedSplit;
 		receiverThread = new ReceiverThread();
+		IsConnected = false;
 		m_listePeriph();
 	}
 	
@@ -81,17 +81,7 @@ public abstract class Class_Bluetooth {
     	}
     	return result;
     }
-	
-	/*public void m_sendData(String data){
-		try {
-			sendStream.write(data.getBytes());
-	        sendStream.flush();
-		}	        
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}*/
-    
+  
     protected String m_sendData(String data, int tempo) {
 		if (IsBusy) {return "IsBusy, nothing sent";}
 		if (sendStream==null){return "OBD non connecté";}
@@ -120,6 +110,7 @@ public abstract class Class_Bluetooth {
 					socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 					receiveStream = socket.getInputStream();
 					sendStream = socket.getOutputStream();
+					IsConnected = true;
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -139,17 +130,13 @@ public abstract class Class_Bluetooth {
 			e.printStackTrace();
 		}
 	}
-
-/*	private BluetoothDevice getDevice() {
-		return device;
-	}*/
 	
 	//#region reception message
 		protected class ReceiverThread extends Thread{
 				
 			String data = "";
 		
-			 protected ReceiverThread(){}
+			protected ReceiverThread(){}
 			 
 			 @Override
 			public void run() {
@@ -164,7 +151,7 @@ public abstract class Class_Bluetooth {
 										rawdata[i] = buffer[i];    									
 									data = data.concat(new String(rawdata));  									
 									if (data.endsWith(_receivedSplit)){
-										data.replace(_receivedSplit, "");
+										data = data.replace(_receivedSplit, "").trim();
 										Message msg = MessageReceived.obtainMessage();
 										Bundle b = new Bundle();
 										b.putString("data", data);
