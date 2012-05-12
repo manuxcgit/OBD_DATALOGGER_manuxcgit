@@ -88,7 +88,7 @@ public class Frame_Main extends Activity {
 	        	OBD= new Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"), this, handlerMAJValues, ">" );
 	        }
 	        if (GPS==null){
-	        	GPS = new Class_Bluetooth_GPS(mPref.m_getParam("pref_gps_name"), this, handlerMAJValues, "?");
+	        	GPS = new Class_Bluetooth_GPS(mPref.m_getParam("pref_gps_name"), this, handlerMAJValues, "");
 	        }
 	        //#endregion    
 	        
@@ -245,12 +245,13 @@ public class Frame_Main extends Activity {
             alertbox.setMessage("Voulez vous quitter ?");
             alertbox.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface arg0, int arg1) {
-                	try
-                	{OBD.close();}
+                	try	{
+                		OBD.close();
+                		GPS.close();
+                	}
                 	catch (Exception e) {
 						// TODO: handle exception
-					}
-                	
+					}                	
                     finish();
                 }
             });

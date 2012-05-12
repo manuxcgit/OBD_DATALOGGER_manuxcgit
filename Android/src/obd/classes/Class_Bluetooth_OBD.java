@@ -61,7 +61,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 			pDL = new ProgressDialog(_context);		
 			pDL.setMax(4);
 			pDL.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			pDL.setTitle("Initialisation OBD");
+			pDL.setTitle("Initialisation OBD " + BT_Name);
 			pDL.setMessage("Essai Connection");
 			pDLShow.sendEmptyMessage(0);
 			IsInitialised=false;

@@ -16,6 +16,7 @@ import android.os.Message;
 import android.sax.StartElementListener;
 import android.text.format.Time;
 import android.util.Log;
+import android.widget.Toast;
 
 public class Class_Bluetooth_GPS extends Class_Bluetooth{
 	
@@ -28,9 +29,14 @@ public class Class_Bluetooth_GPS extends Class_Bluetooth{
 
 	@Override
 	protected void m_traiteMessage(Message msg) {
-		IsConnected = true;
+		IsInitialised = true;
+		String received = msg.getData().getString("data");
+		Toast.makeText(_context, received	, Toast.LENGTH_SHORT).show();
 		if (etatThreadLog==1){
 			//sauve les données
+			//String received = msg.getData().getString("data");
+			if (received.equals("")){received="Test";}
+			WriteLOG(received);
 		}
 	}
 
@@ -52,7 +58,7 @@ public class Class_Bluetooth_GPS extends Class_Bluetooth{
 		pDL = new ProgressDialog(_context);		
 		pDL.setMax(4);
 		pDL.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		pDL.setTitle("RECHERCHE GPS");
+		pDL.setTitle("RECHERCHE GPS " + BT_Name);
 		pDL.setMessage("Essai Connection");
 		pDLShow.sendEmptyMessage(0);
 		IsInitialised=false;
@@ -61,6 +67,8 @@ public class Class_Bluetooth_GPS extends Class_Bluetooth{
 			public void run() {
 				Looper.prepare();
 				try{
+					m_setBT();
+					Thread.sleep(1500);
 					long start_time = System.currentTimeMillis();
 					long elapsed_time = 0;
 					//#region connection
@@ -95,13 +103,19 @@ public class Class_Bluetooth_GPS extends Class_Bluetooth{
 			        	Thread.sleep(2000);
 			        	pDLDismiss.sendEmptyMessage(0);
 			        }
+					m_incrementpDL("GPS connecté");
+					Thread.sleep(2000);
+					pDLDismiss.sendEmptyMessage(0);
 			        //#endregion
 			        //#region initialisation
 			        //attend localisation satellites
 			        //#endregion
 				}
 				catch (Exception e) {
-					// TODO: handle exception
+		        	m_incrementpDL("Probleme imprévu !!");
+		        	try{Thread.sleep(2000);}
+		        	catch(Exception e1) {}
+		        	pDLDismiss.sendEmptyMessage(0);
 				}
 			}
 		});

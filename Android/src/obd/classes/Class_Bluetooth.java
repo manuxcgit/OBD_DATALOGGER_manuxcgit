@@ -280,8 +280,9 @@ public abstract class Class_Bluetooth {
 							byte rawdata[] = new byte[k];
 							for(int i=0;i<k;i++)
 								rawdata[i] = buffer[i];    									
-							data = data.concat(new String(rawdata));  									
-							if (data.endsWith(_receivedSplit)){
+							data = data.concat(new String(rawdata)); 
+							//Toast.makeText(_context, data, Toast.LENGTH_SHORT).show();
+							if (data.endsWith(_receivedSplit) | debug){
 								data = data.replace(_receivedSplit, "").trim();
 								Message msg = MessageReceived.obtainMessage();
 								Bundle b = new Bundle();
