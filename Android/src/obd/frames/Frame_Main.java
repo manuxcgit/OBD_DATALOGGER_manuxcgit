@@ -6,6 +6,7 @@ package obd.frames;
 //http://kidrek.fr/blog/android/android-gestion-des-preferences-au-sein-dune-appli/
 
 
+import obd.classes.Class_Bluetooth;
 import obd.classes.Class_Bluetooth_GPS;
 import obd.classes.Class_Bluetooth_OBD;
 import obd.classes.Class_UserPreferences;
@@ -56,7 +57,7 @@ public class Frame_Main extends Activity {
 	TextView tvEngagedGear;
 	TextView tvLogInfo;
 	TextView tvChrono;
-	TextView tvGPS;
+	TextView tvGPSInfo;
 	int[] gear = new int[5];
 	//#endregion
 	
@@ -80,7 +81,7 @@ public class Frame_Main extends Activity {
 	        tvEngagedGear = (TextView) findViewById(R.id.textViewGEARENGAGED);
 	        tvLogInfo = 	(TextView) findViewById(R.id.textViewLOGINFO);
 	        tvChrono = 		(TextView) findViewById(R.id.textViewCHRONO);
-	        tvGPS = 		(TextView)findViewById(R.id.textViewGPSINFO);
+	        tvGPSInfo = 		(TextView)findViewById(R.id.textViewGPSINFO);
 	        text_a_envoyer = (EditText) findViewById(R.id.editTextAEnvoyer);
 	        debug = (mPref.m_getParam("pref_debug")=="true");
 	        m_adjustLinearLayouts(debug);	
@@ -88,23 +89,10 @@ public class Frame_Main extends Activity {
 	        	OBD= new Class_Bluetooth_OBD(mPref.m_getParam("pref_obd_name"), this, handlerMAJValues, ">" );
 	        }
 	        if (GPS==null){
-	        	GPS = new Class_Bluetooth_GPS(mPref.m_getParam("pref_gps_name"), this, handlerMAJValues, "");
+	        	GPS = new Class_Bluetooth_GPS(mPref.m_getParam("pref_gps_name"), this, handlerMAJ_GPS, "$");
 	        }
 	        //#endregion    
 	        
-	        Thread lanceBT =new Thread(new Runnable() {
-				
-				public void run() {
-					Looper.prepare();
-					Log.v("initialise OBD", "start" );
-					OBD.m_connect();
-			        while (!OBD.InitTerminée()){}
-			        GPS.m_connect();
-			        while (!GPS.InitTerminée()){}
-			        alertboxShow.sendEmptyMessage(0);			        
-				}
-			});
-	        lanceBT.start();
 	        //evite extinction ecran
 	        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	        
@@ -120,6 +108,23 @@ public class Frame_Main extends Activity {
 					// TODO: handle exception
 				}				
 			}
+	    	
+	    	//demarre les BT
+	        Thread lanceBT =new Thread(new Runnable() {
+				
+				public void run() {
+					Looper.prepare();
+					Log.v("initialise OBD", "start" );
+					OBD.m_connect();
+			        while (!OBD.InitTerminée()){}
+			        Log.v("initialise GPS", "start" );
+			        GPS.m_connect();
+			        while (!GPS.InitTerminée()){}
+			        Log.v("initialise les BT", "fin" );
+			        alertboxShow.sendEmptyMessage(0);			        
+				}
+			});
+	        lanceBT.start();
     	}
         catch (Exception e){     
         	Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
@@ -161,16 +166,28 @@ public class Frame_Main extends Activity {
 				case Class_Bluetooth_OBD.TOMAINFRAME_LOG_READY:
 					tvLogInfo.setText("PRET POUR LOGGER");
 					break;
+			/*	case Class_Bluetooth.TOMAINFRAME_LOG_MESSAGE_FROM_GPS:
+					tvGPSInfo.setText(String.format("%d", msg.arg2));
+					break;*/
 				default:
 					break;
 			}
        }
+    };
+
+    final Handler handlerMAJ_GPS = new Handler(){
+    	 @Override
+ 		public void handleMessage(Message msg) {
+    		 String received = msg.getData().getString("data");
+    		 tvGPSInfo.setText(received);
+    	}
     };
     
     Handler alertboxShow = new Handler(){
 		@Override
 		public void handleMessage(Message msg) {
 			Toast.makeText(ctx	, "initialisation Bluetooth terminée", Toast.LENGTH_LONG).show();
+			Log.v("Toast", "init BT terminée" );
         }
 	};
 	
@@ -274,9 +291,11 @@ public class Frame_Main extends Activity {
 	        	if (title.equals(getResources().getString(R.string.menuLancerLog))){
 	        		if (OBD.StartLog()) {
 	        			item.setTitle(string.menuArreterLog);
-	        			tvLogInfo.setText("LOG DEMARRE");
+	        			tvLogInfo.setText("Log OBD demarré");
 	        			LogStartTime = System.currentTimeMillis();
-	        			GPS.StartLog();
+	        			if (GPS.StartLog()){
+	        				tvGPSInfo.setText("Log GPS demarré");
+	        			}
 	        		}
 	        		else{
 	        			Toast.makeText(this, "Echec au lancement du LOG OBD",Toast.LENGTH_SHORT).show();

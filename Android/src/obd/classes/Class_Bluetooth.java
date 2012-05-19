@@ -39,6 +39,8 @@ public abstract class Class_Bluetooth {
 	private BluetoothDevice device = null;
 	private InputStream receiveStream = null;
 	private OutputStream sendStream = null;	
+	private String _messageToast;
+	private enumBt _typeBT;
 	
 	protected LOGThread LogThread;
 	protected int etatThreadLog = 0; //0 si pas de thread, 1 si ok, 2 si erreur
@@ -68,16 +70,20 @@ public abstract class Class_Bluetooth {
     static public final int TOMAINFRAME_LOG_SIZE = 2;
     static public final int TOMAINFRAME_LOG_STOPPED = 3;
     static public final int TOMAINFRAME_LOG_READY = 4;
+    static public final int TOMAINFRAME_LOG_MESSAGE_FROM_GPS = 5;
     static protected final int PDL_SHOW = 0;
     static protected final int PDL_DISMISS = 1;
+    
+    public enum enumBt { OBD, GPS };
 	// #endregion
 
     //#region public
-	public Class_Bluetooth(String NomBT, Context context, Handler toMainFrame, String receivedSplit ){
+	public Class_Bluetooth(enumBt typeBT, String NomBT, Context context, Handler toMainFrame, String receivedSplit ){
 		BT_Name = NomBT;
 		_context = context;
 		ToMainFrame = toMainFrame;
 		_receivedSplit = receivedSplit;
+		_typeBT = typeBT;
 		receiverThread = new ReceiverThread();
 		IsConnected = false;
 		mPref = new Class_UserPreferences(_context) ;
@@ -163,6 +169,8 @@ public abstract class Class_Bluetooth {
 	public void close() {
 		try {
 			socket.close();
+			IsConnected = false;
+			//if (receiverThread.isAlive()){receiverThread.interrupt();}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -200,15 +208,20 @@ public abstract class Class_Bluetooth {
 					socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
 					receiveStream = socket.getInputStream();
 					sendStream = socket.getOutputStream();
+					//IsConnected = true;
+					toast(BT_Name + " trouvé");
+					socket.connect();
+					toast(BT_Name + " connecté");;
 					IsConnected = true;
+					receiverThread.start();
 				} catch (IOException e) {
-					e.printStackTrace();
+					toast(BT_Name + " NON connecté");
 				}
 				return;
 			}
 		}
 		Log.v(BT_Name,"introuvable");
-		Toast.makeText(_context, BT_Name + " pour BlueTooth introuvable !", Toast.LENGTH_LONG).show();
+		toast(BT_Name + " pour BlueTooth introuvable !");
 	}
     
     protected void m_incrementpDL(String newText) {	
@@ -218,6 +231,13 @@ public abstract class Class_Bluetooth {
         msg.setData(b);
         pDLincrement.sendMessage(msg);		
 	}
+    
+    protected void toast(String text) {
+    	if (debug){
+			_messageToast = text;
+			ShowToast.sendEmptyMessage(0);
+    	}
+	}
         
 	protected void alertBoxShow(){
 		alertboxShow.sendEmptyMessage(0);
@@ -225,7 +245,7 @@ public abstract class Class_Bluetooth {
 	
 	protected void WriteLOG(String toWrite) {
 		 try{
-			 writerLOG.write(toWrite + "\r\n");
+			 writerLOG.write(toWrite);
 			 writerLOG.flush();
 		 }
 		 catch (IOException e){}           
@@ -256,6 +276,7 @@ public abstract class Class_Bluetooth {
 		            String.format(" %04d%02d%02d_%02d%02d%02d", now.year,now.month+1,now.monthDay,now.hour,now.minute,now.second) +".txt");
 		fileLOG.createNewFile();
 		writerLOG = new FileWriter(fileLOG,false);
+		//#endregion
 		return 1;
 		}
 		catch (Exception e) {
@@ -271,34 +292,49 @@ public abstract class Class_Bluetooth {
 		
 		 @Override
 		public void run() {
-			while(receiveStream!=null) {
-				try {
+			 if (debug){
+				toast("ReceiverThread " + BT_Name + " démarré");
+				try{Thread.sleep(500);}
+				catch (Exception ee){}
+			 }
+			while(IsConnected) {
+				try {					
 					if(receiveStream.available() > 0) {
-						byte buffer[] = new byte[100];
-						int k = receiveStream.read(buffer, 0, 100);    								
+						byte buffer[] = new byte[200];
+						int k = receiveStream.read(buffer, 0, 200);
 						if(k > 0) {
 							byte rawdata[] = new byte[k];
 							for(int i=0;i<k;i++)
 								rawdata[i] = buffer[i];    									
-							data = data.concat(new String(rawdata)); 
-							//Toast.makeText(_context, data, Toast.LENGTH_SHORT).show();
-							if (data.endsWith(_receivedSplit) | debug){
-								data = data.replace(_receivedSplit, "").trim();
+							data = data.concat(new String(rawdata));
+							if (data.contains(_receivedSplit)){
+								//data = data.replace(_receivedSplit, "").trim();
 								Message msg = MessageReceived.obtainMessage();
 								Bundle b = new Bundle();
-								b.putString("data", data);
-				                msg.setData(b);
+								String _first = data.split(_receivedSplit)[0];
+								b.putString("data", _first);
+				                msg.setData(b);  
 				                MessageReceived.sendMessage(msg);
-				                receivedData = data;
-				                data = "";
+				                receivedData = _first;
 				                IsBusy = false;
-							}
-						}
+				                if (!data.endsWith(_receivedSplit)){
+				                	data = data.split(_receivedSplit)[1];
+				                }
+				                else {
+				                	data = "";
+				                }
+							} 
+						}						
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
+				} 
+				catch (IOException e) {
+					toast("receiver stream "+ BT_Name + " IO erreur !");
+				}
+				catch (Exception e) {
+					// TODO: handle exception
 				}
 			}
+			toast("receiver stream "+BT_Name+" arrété !!");
 		}
 	 }
 	
@@ -357,6 +393,12 @@ public abstract class Class_Bluetooth {
 		@Override
 		public void handleMessage(Message msg){
 			m_traiteMessage(msg);
+		}
+	};
+	
+	Handler ShowToast = new Handler(){
+		public void handleMessage(Message msg){
+			Toast.makeText(_context, _messageToast, Toast.LENGTH_SHORT).show();
 		}
 	};
     //#endregion

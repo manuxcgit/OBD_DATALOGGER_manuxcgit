@@ -37,14 +37,14 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	//#endregion
 
     public Class_Bluetooth_OBD (String nomBT, Context context, Handler toMainFrame, String receivedSplit)	{
-    		super(nomBT, context, toMainFrame, receivedSplit);// hstatus, h, context);
+    		super(enumBt.OBD, nomBT, context, toMainFrame, receivedSplit);// hstatus, h, context);
     		//receiverThread =  new ReceiverThread();
     		try {
 				intervalleLOG = Integer.parseInt(mPref.m_getParam("pref_periodeLOG"));
 				nbrLoopTest = Integer.parseInt(mPref.m_getParam("pref_nbrtestconnection"));
 			} catch (Exception e) {	}
     		if (debug){
-    			Log.v("OBD","Debug on");
+    			Log.v("GPS","Debug on");
     			nbrLoopTest = 1;
     		}
     		//this.m_connect();
@@ -76,8 +76,8 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 				m_setBT();
 				Log.v("m_setBT","ok");
 				// #region connecte
-				if (socket!=null){
-					socket.connect();
+				if (socket!=null & IsConnected){
+					//socket.connect();
 					m_incrementpDL("Connection ok, teste OBD ...");
 				}
 				else {
@@ -92,8 +92,8 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 						m_incrementpDL("Connection mode Debug !!");
 					}
 				}
-				IsConnected = true;
-				receiverThread.start();
+				//IsConnected = true;
+				//receiverThread.start();
 				Log.v("receiverThread","ok");
 				Thread.sleep(2000);
 				String answer = m_sendData("ATZ\r", 5000);
@@ -105,6 +105,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 						m_incrementpDL("Echec echo ELM327");
 						Thread.sleep(2000);
 						pDLDismiss.sendEmptyMessage(0);
+						init_terminee = true;
 						return;						
 					}	
 					else{
@@ -233,13 +234,14 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 	//#region reception message
 	@Override
 	protected  void m_traiteMessage(Message msg){
-		String received = msg.getData().getString("data");
-		if (debug){Toast.makeText(_context, "Received = '" + received + "'", Toast.LENGTH_SHORT).show();}
+		String received = msg.getData().getString("data").replace(_receivedSplit, "").trim();
+		
+		//if (debug){Toast.makeText(_context, "Received = '" + received + "'", Toast.LENGTH_SHORT).show();}
 		if (received.startsWith("01")){
 			try {
 				String value_string = received.substring(9);// car  en theorie ">" eliminé, received.length()-1);
 				int value ;
-				if (debug){Toast.makeText(_context, "Value string = '" + value_string + "'", Toast.LENGTH_LONG).show();}
+				//if (debug){Toast.makeText(_context, "Value string = '" + value_string + "'", Toast.LENGTH_LONG).show();}
 				if (received.contains("NO DATA")){
 					value=39;//-1 au final
 				} 
@@ -252,8 +254,8 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 					}							
 				}					
 				int type_donnee = Integer.parseInt(received.substring(2, 4), 16);
-				if (debug)
-				{Toast.makeText(_context, String.format("value = %d ... type donnée = %d", value , type_donnee), Toast.LENGTH_SHORT).show();}
+				//if (debug)
+				//{Toast.makeText(_context, String.format("value = %d ... type donnée = %d", value , type_donnee), Toast.LENGTH_SHORT).show();}
 				switch (type_donnee) {
 				case 12:
 					//rpm
@@ -335,7 +337,7 @@ public class Class_Bluetooth_OBD extends Class_Bluetooth {
 								info.arg2 = (int)fileLOG.length();
 							}
 							LogOil++;
-							WriteLOG( String.format("%4d,%3d,%3d,%3d,%5d", RPM,Speed,OilTemp,WaterTemp,(System.currentTimeMillis()-start_time_LOG)/1000));
+							WriteLOG( String.format("%4d,%3d,%3d,%3d,%5d\r\n", RPM,Speed,OilTemp,WaterTemp,(System.currentTimeMillis()-start_time_LOG)/1000));
 							ToMainFrame.sendMessage(info);
 							LOGBusy=false;
 						}

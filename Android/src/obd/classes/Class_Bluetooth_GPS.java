@@ -5,10 +5,13 @@ import java.io.FileWriter;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.R.integer;
+import android.R.string;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,24 +23,48 @@ import android.widget.Toast;
 
 public class Class_Bluetooth_GPS extends Class_Bluetooth{
 	
-	//private ProgressDialog pDL;
+	//private string _latitude;
+	//private string _longitude;
+	private string _vitesseGPS;
 	
 	 public Class_Bluetooth_GPS (String nomBT, Context context, Handler toMainFrame, String receivedSplit)	{
- 		super(nomBT, context, toMainFrame, receivedSplit);
+ 		super(enumBt.GPS, nomBT, context, toMainFrame, receivedSplit);
  	} 
 
 
 	@Override
 	protected void m_traiteMessage(Message msg) {
-		IsInitialised = true;
-		String received = msg.getData().getString("data");
-		Toast.makeText(_context, received	, Toast.LENGTH_SHORT).show();
-		if (etatThreadLog==1){
-			//sauve les données
-			//String received = msg.getData().getString("data");
-			if (received.equals("")){received="Test";}
-			WriteLOG(received);
+		try{
+			IsInitialised = true;
+			String received = msg.getData().getString("data");
+			if (debug){
+				Message _toFrame = MessageReceived.obtainMessage();
+				Bundle b = new Bundle();
+				b.putString("data", received.replace("\r\n", "").substring(0, 20));
+	            _toFrame.setData(b);  
+	            ToMainFrame.sendMessage(_toFrame);
+			}
+			else{
+				if (received.contains("RMC")){
+					String[] infos = received.split(",");
+					try {
+						double _v = Double.parseDouble(infos[7].replace(".", ","));
+						_v *= 0.14278;
+						Message _toFrame = MessageReceived.obtainMessage();
+						Bundle b = new Bundle();
+						b.putString("data", String.format("Vitesse : %d km/h", _v));
+		                _toFrame.setData(b);  
+		                ToMainFrame.sendMessage(_toFrame);
+					} catch (Exception e) {
+						toast(infos[7]);
+					}
+				}
+			}
+			if (etatThreadLog==1){
+				WriteLOG(received);
+			}
 		}
+		catch (Exception e){}
 	}
 
 	@Override
@@ -56,14 +83,13 @@ public class Class_Bluetooth_GPS extends Class_Bluetooth{
 	@Override
 	protected void m_connecteBT() {
 		pDL = new ProgressDialog(_context);		
-		pDL.setMax(4);
+		pDL.setMax(2);
 		pDL.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		pDL.setTitle("RECHERCHE GPS " + BT_Name);
 		pDL.setMessage("Essai Connection");
 		pDLShow.sendEmptyMessage(0);
 		IsInitialised=false;
-		Thread thread_initialiseGPS = new Thread(new Runnable() {
-			
+		Thread thread_initialiseGPS = new Thread(new Runnable() {			
 			public void run() {
 				Looper.prepare();
 				try{
@@ -105,10 +131,14 @@ public class Class_Bluetooth_GPS extends Class_Bluetooth{
 			        }
 					m_incrementpDL("GPS connecté");
 					Thread.sleep(2000);
-					pDLDismiss.sendEmptyMessage(0);
-			        //#endregion
+					//receiverThread.start();
 			        //#region initialisation
 			        //attend localisation satellites
+					while (!IsInitialised){}
+					m_incrementpDL("GPS initialisé, pret !!");
+					Thread.sleep(2000);
+					pDLDismiss.sendEmptyMessage(0);
+			        //#endregion
 			        //#endregion
 				}
 				catch (Exception e) {
@@ -117,6 +147,7 @@ public class Class_Bluetooth_GPS extends Class_Bluetooth{
 		        	catch(Exception e1) {}
 		        	pDLDismiss.sendEmptyMessage(0);
 				}
+				init_terminee=true;
 			}
 		});
 		thread_initialiseGPS.start();
